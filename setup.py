@@ -15,23 +15,28 @@ with open('README.rst') as file:
     file.close()
 
 setup(
-        # Required information
-        name='Token Asena',
-        version='0.1',         # major.minor[.patch[.sub]]
-        url='https://www.gitorious.org/token-asena',
-
-        # Switch out
-        author='Jordan Hewitt',          # or user maintainer
-        author_email='jordannh@sent.com',    # or use maintainer_email
-        maintainer='',
-        maintainer_email='',
-
-        # optional
-        description='Generate anonymous-use tokens and protect views' +
-            ' from unauthorized access.',
-        long_description=long_description,
-        download_url='',
-        classifiers=['', ''],
-        platforms=['', ''],
-        license='GPLv3',
-        )
+    # Required information
+    name='Token Asena',
+    version='0.1',         # major.minor[.patch[.sub]]
+    url='https://www.gitorious.org/token-asena',
+    
+    # Switch out
+    author='Jordan Hewitt',          # or user maintainer
+    author_email='jordannh@sent.com',    # or use maintainer_email
+    maintainer='',
+    maintainer_email='',
+    
+    # optional
+    description='Generate anonymous-use tokens and protect views' +
+    ' from unauthorized access.',
+    long_description=long_description,
+    download_url='',
+    classifiers=['Topic :: Internet :: WWW/HTTP :: WSGI :: Application', ''],
+    platforms=['', ''],
+    license='GPLv3',
+    
+    #data_files = ['./docs',],
+    packages = ['asena',
+                'asena.models',
+        ],
+)

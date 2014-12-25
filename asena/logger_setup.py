@@ -30,7 +30,8 @@ CONFIG = {
         },
     'formatters': {
         'detailed': {
-            'format': '%(asctime)s %(module)s line:%(lineno)-4d %(levelname)-8s %(message)s',
+            'format': str('%(asctime)s %(module)s:%(lineno)-4d ' +
+                      '%(levelname)-8s %(message)s'),
             },
         },
     'test_logger': {

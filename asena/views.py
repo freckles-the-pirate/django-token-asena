@@ -1,31 +1,47 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
-from asena.models.token import Token, InvalidTokenException
-from asena.models.token import AutorizationException, DisabledTokenException
+from asena.models.token import Token, TokenException, InvalidTokenException
+from asena.models.token import AuthorizationException, DisabledTokenException
 from django.http import HttpResponseRedirect
 
+from asena.logger_setup import *
+import logging
+logger = logging.getLogger('test_logger')
+import pprint
+
 def get_setting(setting, alt_value):
-    try:
+    if hasattr(settings, setting):
         return settings.setting
-    except Exception:
-        return alt_value
+    return alt_value
 
 def token_prompt(request, *args, **kwargs):
-    template_needed = get_setting(ASENA_TOKEN_NEEDED_TEMPLATE,            
+    template_needed = get_setting('ASENA_TOKEN_NEEDED_TEMPLATE',
                                     'token_needed.html')
-    template_invalid = get_setting(ASENA_TOKEN_INVALID_TEMPLATE,
+    template_invalid = get_setting('ASENA_TOKEN_INVALID_TEMPLATE',
                                    'token_invalid.html')
-    template_disabled = get_setting(ASENA_TOKEN_INCORRECT_TEMPLATE,
+    template_disabled = get_setting('ASENA_TOKEN_INCORRECT_TEMPLATE',
                                      'token_disabled.html')
     context = {}
     e = kwargs['exception']
+    
+    # Get the url to which we want to redirect.
+    if request.method == 'POST' and 'next' in request.POST:
+        next = request.POST['next']
+    elif request.method == 'GET' and 'next' in request.GET:
+        next = request.GET['next']
+        
+    # If we've encountered a "Token exception", use the appropriate template.
     if isinstance(e, InvalidTokenException):
         context.update({'token_value' : e.token})
         return render(request, template_invalid, context)
     elif isinstance(e, AutorizationException):
         return render(request, template_needed, context)
-    context.update({'token_value' : e.token})
-    return render(request, template_disabled, context)
+    elif isinstance(e, DisabledTokenException):
+        context.update({'token_value' : e.token})
+        return render(request, template_disabled, context)
+    
+    # Otherwise, simply return the view.
+    return redirect(request.GET['next'])
 
 def token_protect(redirect_view=token_prompt):
     """ Only allow the user to access the page if a token is given.
@@ -37,17 +53,22 @@ def token_protect(redirect_view=token_prompt):
     :return: A view function; ``decorate.call`` if the token given is valid or 
         ``redirect`` if the token is invalid.
     """
+    logger.debug("token_protect(%s)"%redirect_view)
     def wrap(view_func):
+        logger.debug("In wrap(%s)"%type(view_func))
         def _wrapped_view_func(request, *args, **kwargs):
+            logger.debug("request type: %s"%type(request))
+            logger.debug("args: %s"%pprint.pformat(args))
+            logger.debug("kwargs: %s"%pprint.pformat(kwargs))
+            # Here we'll check to see if the token is valid. If an exception is
+            # thrown, pass it to ``redirect_view``.
             try:
+                logger.debug("Testing if request is valid...")
                 result = Token.request_is_valid(request)
-            except InvalidTokenException as e1:
-                kwargs.update({'exception', e1})
+            except TokenException as e1:
+                logger.error("%s"%type(e1))
+                kwargs.update({'exception' : e1})
                 return redirect_view(request, *args, **kwargs)
-            except AutorizationException as e2:
-                kwargs.update({'exception', e2})
-                return redirect_view(request, *args, **kwargs)
-            else:
-                return view_func(request, *args, **kwargs)     
+            return view_func
         return _wrapped_view_func
     return wrap

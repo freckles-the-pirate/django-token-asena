@@ -4,6 +4,7 @@ import string, random
 
 def _random_chars(char_set, length):
     """ Choose random characters from a set.
+    
     :param char_set: The character set.
     :type char_set: str
     
@@ -20,23 +21,42 @@ def _random_chars(char_set, length):
         s = s + char_set[n]
     return s
 
-class InvalidTokenException(Exception):
+"""
+" Token Exceptions
+"""
+
+class TokenException(Exception):
+    """ A general abstract exception related to tokens.
+    "
+    """
     def __init__(self, token=None):
+        """
+        " :param token: the invalid token passed in
+        " :type token: object (typically a Token or string)
+        """
         self.token = token
         
     def __repr__(self):
-        return "InvalidTokenException: %s"%self.token
+        return "%s: %s"%(self.__class__.__name__, self.token)
     
-class DisabledTokenException(Exception):
-    def __init__(self, token=None):
-        self.token = token
-        
-    def __repr__(self):
-        return "Token %s has been disabled"%self.token
-    
-class AutorizationException(Exception):
+class InvalidTokenException(TokenException):
+    """ Thrown when a token is invalid (not in the database)
+    """
     def __init__(self, *args, **kwargs):
         super(AutorizationException, self).__init__()
+    
+class DisabledTokenException(TokenException):
+    """ Thrown when a token is valid but has been disabled.
+    """
+    def __init__(self, *args, **kwargs):
+        super(AutorizationException, self).__init__()
+    
+class AuthorizationException(TokenException):
+    """ Thrown when a user has tried to access a page for which they need a 
+        token.
+    """
+    def __init__(self, *args, **kwargs):
+        super(AuthorizationException, self).__init__()
 
 class TokenSet(models.Model):
     generated = models.DateTimeField(auto_now=True)
@@ -123,6 +143,12 @@ class Token(models.Model):
     
     @classmethod
     def request_is_valid(Klass, request):
+        """ Given a request, check that the payload contains a token and that
+        the token is valid. If it's invalid, throw an exception.
+        
+        :return: True if a token is valid for a given request. Throws an 
+                exception otherwise.
+        """
         if request.method == 'POST':
             arr = request.POST
         elif request.method == 'GET':
@@ -134,9 +160,13 @@ class Token(models.Model):
             raise AuthorizationException()
         
         tok = arr[Klass._REQUEST_KEY]
+        qs = Klass.objects.filter(value=tok)
         
-        if not Klass.objects.filter(value=tok).exists():
+        if not qs.exists():
             raise InvalidTokenException(tok)
+        
+        if qs[0].is_disabled():
+            raise DisabledTokenException(qs[0])
         
         return True
     
