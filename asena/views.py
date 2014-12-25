@@ -34,7 +34,7 @@ def token_prompt(request, *args, **kwargs):
     if isinstance(e, InvalidTokenException):
         context.update({'token_value' : e.token})
         return render(request, template_invalid, context)
-    elif isinstance(e, AutorizationException):
+    elif isinstance(e, AuthorizaonException):
         return render(request, template_needed, context)
     elif isinstance(e, DisabledTokenException):
         context.update({'token_value' : e.token})
