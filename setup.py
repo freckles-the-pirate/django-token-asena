@@ -12,24 +12,26 @@ if version < '2.2.3':
 
 with open('README.rst') as file:
     long_description = file.read()
+    file.close()
 
 setup(
         # Required information
-        name='',
-        version='',         # major.minor[.patch[.sub]]
-        url='',
+        name='Token Asena',
+        version='0.1',         # major.minor[.patch[.sub]]
+        url='https://www.gitorious.org/token-asena',
 
         # Switch out
-        author='',          # or user maintainer
-        author_email='',    # or use maintainer_email
+        author='Jordan Hewitt',          # or user maintainer
+        author_email='jordannh@sent.com',    # or use maintainer_email
         maintainer='',
         maintainer_email='',
 
         # optional
-        description='',
+        description='Generate anonymous-use tokens and protect views' +
+            ' from unauthorized access.',
         long_description=long_description,
         download_url='',
         classifiers=['', ''],
         platforms=['', ''],
-        license='',
+        license='GPLv3',
         )

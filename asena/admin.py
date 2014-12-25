@@ -1,4 +1,4 @@
 from django.contrib import admin
 from . models import *
 
-admin.site.register(my_model)
+#admin.site.register(my_model)

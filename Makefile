@@ -1,8 +1,14 @@
+BASE_DIR=asena
+
+PIP=`which pip`
+
+.PHONY: install
+install:
+	$(PIP) install . -U
 
 .PHONY: test
 test:
-	cd tests; \
-	./runall.sh;
+	./runtests.sh $(BASE_DIR)
 
 .PHONY: clean
 clean:

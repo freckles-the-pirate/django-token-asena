@@ -8,9 +8,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
+#from asena.settings import *
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+import os,sys
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+print("Insert %s"%BASE_DIR)
+sys.path.insert(0, BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -35,8 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-# Put custom apps here.
-
+    "asena",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -57,7 +60,6 @@ WSGI_APPLICATION = 'token_asena.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':mem:',
     }
 }
 

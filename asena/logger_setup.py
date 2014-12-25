@@ -6,15 +6,15 @@ from logutils.colorize import ColorizingStreamHandler
 
 class ColorHandler(ColorizingStreamHandler):
     def __init__(self, *args, **kwargs):
-        super(ColorHandler, self).__init__(*args, **kwargs):
-            self.level_map = {
-                # Provide you custom coloring information here
-                logging.DEBUG: (None, 'blue', False),
-                logging.INFO: (None, 'green', False),
-                logging.WARNING: (None, 'yellow', False),
-                logging.ERROR: (None, 'red', False),
-                logging.CRITICAL: ('red', 'white', True),
-            }
+        super(ColorHandler, self).__init__(*args, **kwargs)
+        self.level_map = {
+            # Provide you custom coloring information here
+            logging.DEBUG: (None, 'blue', False),
+            logging.INFO: (None, 'green', False),
+            logging.WARNING: (None, 'yellow', False),
+            logging.ERROR: (None, 'red', False),
+            logging.CRITICAL: ('red', 'white', True),
+        }
 
 CONFIG = {
     'version':1,
@@ -33,7 +33,7 @@ CONFIG = {
             'format': '%(asctime)s %(module)s line:%(lineno)-4d %(levelname)-8s %(message)s',
             },
         },
-    'test_contact': {
+    'test_logger': {
         'info': {
             'level':'DEBUG',
             'handlers':['console'],
