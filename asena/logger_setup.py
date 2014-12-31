@@ -34,7 +34,7 @@ CONFIG = {
                       '%(levelname)-8s %(message)s'),
             },
         },
-    'test_logger': {
+    'to_terminal': {
         'info': {
             'level':'DEBUG',
             'handlers':['console'],
