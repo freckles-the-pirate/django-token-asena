@@ -1,25 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from asena.utils import random_chars
 import string, random
 
-def _random_chars(char_set, length):
-    """ Choose random characters from a set.
-    
-    :param char_set: The character set.
-    :type char_set: str
-    
-    :param length: the length of the set.
-    :type length: int
-    
-    :return: A string of random characters chosen from char_set.
-    """
-    s = ""
-    sz = len(char_set)-1
-    r = random.SystemRandom()
-    for i in range(0, length):
-        n = r.randint(0, sz)
-        s = s + char_set[n]
-    return s
 
 """
 " Token Exceptions
@@ -133,7 +116,8 @@ class Token(models.Model):
         
         :return: The token just generated.
         """
-        val = _random_chars(valid_characters, length)
+        global random_chars
+        val = random_chars(valid_characters, length)
         token = Klass.objects.create(token_set=token_set, comment=comment,
                                     value=val)
         return token

@@ -1,29 +1,27 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, HttpResponse
+from django.views.decorators.http import require_POST, require_GET
+
 from asena.models.token import Token, TokenException, InvalidTokenException
 from asena.models.token import AuthorizationException, DisabledTokenException
 from asena.forms import TokenWall
-from django.http import HttpResponseRedirect
+from asena.utils import *
 
 from asena.logger_setup import *
 import logging
 logger = logging.getLogger('test_logger')
 import pprint
 
-def get_setting(setting, alt_value):
-    if hasattr(settings, setting):
-        return settings.setting
-    return alt_value
-
-def make_url(base, **kwargs):
-    sep = '?'
-    logger.debug("Making URL with %s and %s"%(base, pprint.pformat(kwargs)))
-    for k,v in kwargs.items():
-        base = str(base + sep + k + '=' + v)
-        if sep == '?':
-            sep = '&'
-    return base
+@require_GET
+def token_ajax_generate(request, *args, **kwargs):
+    """ Generate token text (not an actual token, though) and return the
+    text as an ajax response.
+    """
+    length=request.GET['length']
+    include_symbols=(request.GET['include_symbols'] == '1')
+    return HttpResponse(_random_chars())
 
 def token_wall(request, *args, **kwargs):
     context = {}
