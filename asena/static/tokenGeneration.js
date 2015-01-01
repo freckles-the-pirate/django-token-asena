@@ -30,7 +30,7 @@ function ajaxRequest(){
 //Sample call:
 //var myajaxrequest=new ajaxRequest()
 
-function getAsenaToken(element_id){
+function generateAsenaToken(element_id){
     var mygetrequest=new ajaxRequest()
     
     // Set up a callback

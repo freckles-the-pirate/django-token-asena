@@ -1,6 +1,7 @@
 import random
 
-from asena.logger_setup import *
+from django.conf import settings
+
 import logging
 logger = logging.getLogger('test_logger')
 import pprint

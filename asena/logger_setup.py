@@ -34,10 +34,11 @@ CONFIG = {
                       '%(levelname)-8s %(message)s'),
             },
         },
-    'to_terminal': {
-        'info': {
+    'loggers' : {
+        'to_terminal': {
             'level':'DEBUG',
             'handlers':['console'],
+            'propogate' : True,
             },
         },
     }

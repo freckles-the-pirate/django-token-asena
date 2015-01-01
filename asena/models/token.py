@@ -126,6 +126,17 @@ class Token(models.Model):
         return self.disabled or self.token_set.disabled
     
     @classmethod
+    def exists(self, value):
+        return Token.objects.filter(value).exists()
+    
+    @classmethod
+    def is_valid(self, value):
+        if Token.exists(value):
+            t = Token.objects.get(value=value)
+            return not t.is_disabled
+        return False
+    
+    @classmethod
     def request_is_valid(Klass, request):
         """ Given a request, check that the payload contains a token and that
         the token is valid. If it's invalid, throw an exception.
