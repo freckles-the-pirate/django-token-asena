@@ -25,6 +25,19 @@ def random_chars(char_set, length):
         s = s + char_set[n]
     return s
 
+def html_attrs(attrs):
+    """ Convert the attrs in dict format to an HTML format.
+    
+    :param attrs: The attributes for the element
+    :type attrs: dict
+    
+    :return: string representing the attributes portion of a tag.
+    """
+    html = ""
+    for a in attrs.items():
+        html = html + "%s=\"%s\" "%(a)
+    return html
+
 def get_setting(setting, alt_value):
     if hasattr(settings, setting):
         return settings.setting

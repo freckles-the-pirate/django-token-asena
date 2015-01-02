@@ -4,36 +4,35 @@ from django.utils.text import mark_safe
 from django.templatetags.static import static
 from django.conf import settings
 
+from asena.utils import html_attrs
+
 import logging, pprint, os
 logger = logging.getLogger('to_terminal')
 
-class TokenWidget(forms.TextInput):
+""" Constant to pass in to the "onClick" HTML attribute for a button
+"""
+ONCLICK_BUTTON_METHOD='generateAsenaToken(%(name)s")'
+
+class Button(forms.Widget):
+    def __init__(self, attrs):
+        self.attrs = attrs
+        self.label = attrs.pop('label', None)
+        self.on_click_method = attrs.pop('onClick', none)
+        
+    def render(self, name, value, attrs=None):
+        return mark_safe("<button " +
+            html_attrs(attrs) +
+            self.on_click_method%{'name' : name} +
+            ">" +
+            _(self.label) +
+            "</button>")
+
+class TokenWidget(forms.MultiWidget):
     
-    def __init__(self, attrs={}, token_generator_attrs={}):
-        attrs.update({  'length' : 20,
-                        'title' : 'Token',
-                        'disabled' : '1' })
-        self.token_generator_attrs = token_generator_attrs
-        super(TokenWidget, self).__init__(attrs)
-        
-    def render(self, name, value, attrs):
-        here = os.path.abspath(os.path.dirname(__file__))
-        fragment_path = os.path.join(here, 'fragments',
-                                     'token_input.html')
-        with open(fragment_path) as render_fragment:
-            html = render_fragment.read()
-            
-        text_name = "%s"%name
-        size_name = "%s_size"%name
-        generate_name = "%s_generate"%name
-        
-        token_gen_js = static('tokenGeneration.js')
-            
-        html = html.format(name=name,
-                           value=value,
-                           text_name=text_name,
-                           size_name=size_name,
-                           generate_name=generate_name,
-                           token_gen_js=token_gen_js)
-        
-        return mark_safe(html)
+    widgets = [forms.TextInput(attrs={'disabled' : '1'}),
+               forms.NumberInput(),
+               Button(attrs={'onClick' : ONCLICK_BUTTON_METHOD,}),
+               ]
+    
+    def decompress(self, value):
+        return str(value)
