@@ -1,7 +1,8 @@
-
 // Default values
 
-ASENA_TOKEN_GET_TOKEN_URL='/token/generate/'
+console.log("Hello, world!");
+
+ASENA_TOKEN_GET_TOKEN_URL='/token/generate';
 
 function ajaxRequest(){
     // Thanks to http://tinyurl.com/5mmjcj for the boilerplate code!
@@ -11,7 +12,7 @@ function ajaxRequest(){
                                                                 //  in IE
                                                                 
     if (window.ActiveXObject){ //Test for support for ActiveXObject in IE first 
-        (as XMLHttpRequest in IE7 is broken)
+                                // (as XMLHttpRequest in IE7 is broken)
         for (var i=0; i<activexmodes.length; i++){
             try{
                 return new ActiveXObject(activexmodes[i])
@@ -30,8 +31,51 @@ function ajaxRequest(){
 //Sample call:
 //var myajaxrequest=new ajaxRequest()
 
-function generateAsenaToken(element_id){
-    var mygetrequest=new ajaxRequest()
+/**
+ * Get the parent element of the element.
+ * Recursively get the parent until either the parent or the "BODY" 
+ * element is reached. See http://tinyurl.com/kngq4 for parentNode details and
+ * http://tinyurl.com/kngq4 for nodeName details.
+ * @name getParent
+ * @param element The HTML DOM element
+ * @param tag The tag name, e.g. "FORM". Must be in upper-case to comply with
+ *            W3C standards.
+ * @return The parent element, or ``null`` if not found.
+ **/
+function getParent(element, tag){
+    parent = element.parentNode;
+    if (parent.nodeName == "BODY") {
+        console.log("Tag %s not found", tag);
+        return null;
+    } else if (parent.nodeName == tag) {
+        console.log("Parent %s found.", tag);
+        return parent
+    }
+    console.log("Getting parent for %s", element.nodeName)
+    return getParent(parent, tag);
+}
+
+function getChild(element, name){
+    console.log("Finding child...");
+    if (element.getAttribute("name") == name)
+        return element;
+    for (var i = 0; i < element.children.length; ++i){
+        c = getChild(element.children[i], name);
+        if (c != null){
+            console.log("Found child %s", c);
+            return c;
+        }
+    }
+    console.warn("Child %s not found from %s", name, element);
+    return null;
+}
+
+function generateAsenaTokens(element_id){
+    
+    var button = document.getElementById(element_id);
+    var parentForm = getParent(button, "FORM");
+    
+    var mygetrequest=new ajaxRequest();
     
     // Set up a callback
     mygetrequest.onreadystatechange=function(){
@@ -45,8 +89,24 @@ function generateAsenaToken(element_id){
             }
         }
     }
+    
+    // Get the values from the fields. This will require a bit of detective
+    // work. We need to find the elements by id instead of name since the ID 
+    // may change from form to form.
+    
+    var count = getChild(parentForm, "count").value;
+    var length = getChild(parentForm, "length").value;
+    
+    if (count == null)
+        count = '';
+    if (length == null)
+        length = '';
+    
+    console.log("Count is %d and length is %d", count, length);
+    
     // Open and send the request.
-    mygetrequest.open("GET", "basicform.php?name="+namevalue+"&age="+agevalue, 
-        true)
-    mygetrequest.send(null)
+    requestUrl = ASENA_TOKEN_GET_TOKEN_URL + "/" + count + "/" + length;
+    console.log("Querying %s", requestUrl);
+    mygetrequest.open("GET", requestUrl, true);
+    mygetrequest.send(null);
 }

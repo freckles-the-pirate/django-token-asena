@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
-from django.core.urlresolvers import reverse
+#from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.views.decorators.http import require_POST, require_GET
 
@@ -27,6 +27,25 @@ def token_ajax_generate(request, *args, **kwargs):
     charset = string.ascii_letters + string.digits
     
     return HttpResponse(random_chars(charset, length))
+
+def token_set_ajax_generate(request, *args, **kwargs):
+    
+    logger.debug("kwargs: %s"%(pprint.pformat(kwargs)))
+    
+    count = int(kwargs.pop('count', -1))
+    length = int(kwargs.pop('length', -1))
+    charset = string.ascii_letters + string.digits
+    
+    if count < 1:
+        count = 1
+    if length < 1:
+        length = 1
+        
+    token_set = [random_chars(charset, length) for i in range(0, count)]
+    #token_set = [i for i in range(0, count)]
+        
+    return HttpResponse(','.join(token_set))
+    
 
 def token_wall(request, *args, **kwargs):
     context = {}

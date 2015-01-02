@@ -93,6 +93,7 @@ class Token(models.Model):
     token_set = models.ForeignKey("TokenSet", related_name="tokens",
                                   related_query_name="tokens")
     disabled = models.BooleanField(default=False)
+    expiration = models.DateTimeField(null=True, blank=True)
     
     _REQUEST_KEY='asena-token'
     
@@ -123,7 +124,8 @@ class Token(models.Model):
         return token
     
     def is_disabled(self):
-        return self.disabled or self.token_set.disabled
+        return (self.token_set.has_expired() or 
+            self.token_set.disabled)
     
     @classmethod
     def exists(self, value):

@@ -35,7 +35,8 @@ def html_attrs(attrs):
     """
     html = ""
     for a in attrs.items():
-        html = html + "%s=\"%s\" "%(a)
+        if a[1]:
+            html = html + "%s=\"%s\" "%(a)
     return html
 
 def get_setting(setting, alt_value):
