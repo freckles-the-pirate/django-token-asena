@@ -26,7 +26,7 @@ class TokenCreationForm(forms.Form):
         cleaned_data = super(TokenCreationForm, self).clean()
         return cleaned_data
         
-class TokenSetCreationForm(forms.ModelForm):
+class TokenSetCreationForm(forms.Form):
     count = forms.IntegerField(label="Number of tokens")
     length = forms.IntegerField(label="Length of each token")
     comment = forms.CharField(label="Comment")

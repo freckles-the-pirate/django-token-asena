@@ -15,7 +15,9 @@ BASE_TESTING_MODULE=$(echo $BASE_TESTING_PATH | sed 's/\.\///g' | sed 's/\//\./g
 export PYTHONPATH=$(pwd)
 
 export DJANGO_SETTINGS_MODULE=$BASE_TESTING_MODULE'.settings_test'
-export TESTRUNNER=debug_discover_runner.DebugDiscoverRunner
+#export TESTRUNNER=debug_discover_runner.DebugDiscoverRunner
+# Django's new test runner.
+export TEST_RUNNER=django.test.runner.DiscoverRunner
 
 if [ `which django-admin.py` ] ; then
     export DJANGO_ADMIN=django-admin.py
