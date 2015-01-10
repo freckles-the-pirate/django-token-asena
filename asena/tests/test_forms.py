@@ -21,7 +21,7 @@ logger = logging.getLogger('to_terminal')
 from asena import widgets
 from asena.forms import TokenCreationForm, TokenSetCreationForm
 from asena.utils import random_chars
-from asena.models import token
+from asena.models import *
 
 class TestFormElements(unittest.TestCase):
     

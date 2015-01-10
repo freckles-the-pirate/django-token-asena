@@ -11,7 +11,7 @@ from datetime import date
 import logging, pprint, os
 logger = logging.getLogger('test_logger')
 
-from asena.models import token
+from asena.models import *
 
 class TestToken(unittest.TestCase):
 
@@ -23,16 +23,16 @@ class TestToken(unittest.TestCase):
         """ A single token can be generated and (semi-)manually added to a token
         set.
         """
-        ts = token.TokenSet.objects.create(name="Test Token Set")
-        t = token.Token.generate(10, ts, comment="First Token")
-        self.assertEqual(len(token.Token.objects.all()), 1)
-        t1 = token.Token.objects.get(pk=t.pk)
+        ts = TokenSet.objects.create(name="Test Token Set")
+        t = Token.generate(10, ts, comment="First Token")
+        self.assertEqual(len(Token.objects.all()), 1)
+        t1 = Token.objects.get(pk=t.pk)
         self.assertEqual(len(t1.value), 10)
         
     def _test_token_set(self):
         """ A token set can generate many tokens.
         """
-        ts = token.TokenSet.generate_set(5, name="Test Token Set")
+        ts = TokenSet.generate_set(5, name="Test Token Set")
         self.assertEquals(len(ts.tokens.all()), 5)
         return ts
     

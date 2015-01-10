@@ -6,8 +6,8 @@ from django.views.decorators.http import require_POST, require_GET
 
 import string, pprint
 
-from asena.models.token import Token, TokenException, InvalidTokenException
-from asena.models.token import AuthorizationException, DisabledTokenException
+from asena.models import Token, TokenException, InvalidTokenException
+from asena.models import AuthorizationException, DisabledTokenException
 from asena.forms import TokenWall
 from asena.utils import *
 

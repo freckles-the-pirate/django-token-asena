@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from asena.models import token
+from asena.models import Token, TokenSet
 from asena.widgets import TokenWidget
 from asena.fields import TokenField, TokenSetField
 
@@ -13,23 +13,29 @@ class TokenWall(forms.Form):
         ve = forms.ValidationError(
             _("The token %s isn't valid."),
             code='invalid')
-        if (token.Token.is_disabled(token_text) or 
-            token.Token.is_valid(token_text) ):
+        if (Token.is_disabled(token_text) or 
+            Token.is_valid(token_text) ):
                 raise ve
         
     
-class TokenCreationForm(forms.Form):
-    token_name = forms.CharField()
-    token_text = TokenField()
+class TokenCreationForm(forms.ModelForm):
+    value = TokenField()
+    comment = forms.CharField(widget=forms.Textarea)
     
     def clean(self):
         cleaned_data = super(TokenCreationForm, self).clean()
         return cleaned_data
-        
-class TokenSetCreationForm(forms.Form):
+    
+    class Meta:
+        model = Token
+        fields = ['value', 'comment']
+
+class TokenSetCreationForm(forms.ModelForm):
     count = forms.IntegerField(label="Number of tokens")
     length = forms.IntegerField(label="Length of each token")
     comment = forms.CharField(label="Comment")
     token_set = TokenSetField()
+    
     class Meta:
-        model = token.TokenSet
+        model = TokenSet
+        fields = ['name', 'comment', 'expiration']

@@ -1,11 +1,19 @@
 from django.contrib import admin
-from asena.models import token
+from .models import *
+from .forms import *
 
-#class TokenAdmin(admin.ModelAdmin):
-    #pass
+import logging
+logger = logging.getLogger('to_terminal')
 
-#class TokenSetAdmin(admin.ModelAdmin):
-    #pass
+class TokenAdmin(admin.ModelAdmin):
+    form = TokenCreationForm
 
-admin.site.register(token.TokenSet)
-admin.site.register(token.Token)
+class TokenSetAdmin(admin.ModelAdmin):
+    form = TokenSetCreationForm
+
+admin.site.register(TokenSet, TokenSetAdmin)
+#admin.site.register(TokenSet)
+logger.debug("Registered TokenSet")
+admin.site.register(Token, TokenAdmin)
+#admin.site.register(Token)
+logger.debug("Registered Token")

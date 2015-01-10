@@ -7,14 +7,14 @@ if [ -z $PYENV ]; then
     exit
 fi
 
-source "$PYENV"
+source $PYENV
 
 BASE_TESTING_PATH=$1
 BASE_TESTING_MODULE=$(echo $BASE_TESTING_PATH | sed 's/\.\///g' | sed 's/\//\./g')
 
 export PYTHONPATH=$(pwd)
 
-export DJANGO_SETTINGS_MODULE=$BASE_TESTING_MODULE'.settings_test'
+export DJANGO_SETTINGS_MODULE=$BASE_TESTING_MODULE'.tests.settings_test'
 #export TESTRUNNER=debug_discover_runner.DebugDiscoverRunner
 # Django's new test runner.
 export TEST_RUNNER=django.test.runner.DiscoverRunner
@@ -38,6 +38,9 @@ TESTS=$(find $BASE_TESTING_PATH -iname 'tests' -print)
 
 echo Tests: $TESTS;
 
+###
+# Converts a given shell path (e.g. /path/to/module.py) into a python name
+# (e.g. path.to.module)
 pypath(){
     echo $( echo $1 | sed 's/\.py//g' | \
         sed 's/\.\///g' | \

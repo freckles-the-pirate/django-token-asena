@@ -8,8 +8,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
-#from asena.settings import *
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os,sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,7 +18,7 @@ sys.path.insert(0, BASE_DIR)
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # Import logging
-from asena.logger_setup import CONFIG as ASENA_LOG_CONFIG
+from asena.tests.logger_setup import CONFIG as ASENA_LOG_CONFIG
 
 LOGGING=ASENA_LOG_CONFIG
 
@@ -89,3 +87,6 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 STATIC_URL = '/static/'
 
 ROOT_URLCONF = 'asena.urls'
+
+import django
+django.setup()

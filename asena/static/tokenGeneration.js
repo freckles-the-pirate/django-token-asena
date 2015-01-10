@@ -45,18 +45,20 @@ function ajaxRequest(){
 function getParent(element, tag){
     parent = element.parentNode;
     if (parent.nodeName == "BODY") {
-        console.log("Tag %s not found", tag);
+        console.warn("getParent(): Reached body. Tag %s not found", tag);
         return null;
     } else if (parent.nodeName == tag) {
-        console.log("Parent %s found.", tag);
-        return parent
+        console.log("getParent(): `%s' found. Returning", tag);
+        return parent;
     }
     console.log("Getting parent for %s", element.nodeName)
     return getParent(parent, tag);
 }
 
 function getChild(element, name){
-    console.log("Finding child...");
+//     nm = element.getAttribute("name");
+    console.log("Checking if %s == %s", element.getAttribute("name"),
+        name );
     if (element.getAttribute("name") == name)
         return element;
     for (var i = 0; i < element.children.length; ++i){
@@ -70,10 +72,30 @@ function getChild(element, name){
     return null;
 }
 
+function fillSelectList(field, stringResult){
+    var results = stringResult.split(',');
+    console.log("Filling with %d results", results.length);
+    // First, clear the list.
+    field.innerHTML = "";
+    for (var i = 0; i < results.length; ++i){
+        res = results[i];
+        option = '<option value="' + res + '">' + res + '</option>\n';
+        console.log("Appending %s to element.", option);
+        field.innerHTML = field.innerHTML + option;
+    }
+}
+
 function generateAsenaTokens(element_id){
     
     var button = document.getElementById(element_id);
     var parentForm = getParent(button, "FORM");
+    
+    var selectField = getChild(parentForm, "SELECT");
+    
+    if (selectField == null){
+        console.error("selectField is null! Stopping...");
+        return;
+    }
     
     var mygetrequest=new ajaxRequest();
     
@@ -82,7 +104,8 @@ function generateAsenaTokens(element_id){
         if (mygetrequest.readyState==4){
             if (mygetrequest.status==200 || 
                 window.location.href.indexOf("http")==-1){
-                // Do something
+                    console.log("Got response: %s", mygetrequest.responseText);
+                    fillSelectList(selectField, mygetrequest.responseText)
                 }
             else{
                 alert("An error has occured making the request");

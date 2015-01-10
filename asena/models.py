@@ -45,6 +45,7 @@ class TokenSet(models.Model):
     generated = models.DateTimeField(auto_now=True)
     name = models.CharField(blank=True, null=True, max_length=200)
     disabled = models.BooleanField(default=False)
+    expiration = models.DateTimeField()
     
     @classmethod
     def generate_set(Klass, count, length=10, name=None):
@@ -70,9 +71,9 @@ class TokenSet(models.Model):
 
     class Meta:
         abstract = False
-        app_label = _("asena")
-        verbose_name = _("Token Set")
-        verbose_name_plural = _("Token Sets")
+        app_label = "asena"
+        verbose_name = "Token Set"
+        verbose_name_plural = "Token Sets"
 
 
 class Token(models.Model):
@@ -174,6 +175,6 @@ class Token(models.Model):
 
     class Meta:
         abstract = False
-        app_label = _("asena")
-        verbose_name = _("Token")
-        verbose_name_plural = _("Tokens")
+        app_label = "asena"
+        verbose_name = "Token"
+        verbose_name_plural = "Tokens"

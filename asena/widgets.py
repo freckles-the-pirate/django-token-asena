@@ -1,5 +1,4 @@
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 from django.utils.text import mark_safe
 from django.templatetags.static import static
 from django.conf import settings
@@ -12,6 +11,10 @@ logger = logging.getLogger('to_terminal')
 """ Constant to pass in to the "onClick" HTML attribute for a button
 """
 ONCLICK_BUTTON_METHOD="generateAsenaTokens('%(id)s'); return false;"
+
+""" In case the static URL changes, make it a constant, too
+"""
+STATIC_JS='tokenGeneration.js'
 
 class Button(forms.Widget):
     def __init__(self, attrs):
@@ -39,7 +42,14 @@ class Button(forms.Widget):
                 'onClick' : str(self.on_click_method%{'id' : attrs['id'],}),
                 'type' : 'button',
             })
-        return mark_safe("<button %s>%s</button>"%(html_attrs(attrs),
+            
+        # It's ugly, but first we need to prepend some javascript.
+        js = static(STATIC_JS)
+        
+        s = """<script type="text/javascript"></script>
+<script type="text/javascript" src="%s"></script>"""%js
+        
+        return mark_safe(s + "<button %s>%s</button>"%(html_attrs(attrs),
                                                    self.label))
     
 class SizeWidget(forms.NumberInput):

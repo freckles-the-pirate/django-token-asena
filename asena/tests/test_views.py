@@ -15,16 +15,16 @@ import logging, pprint, os
 logger = logging.getLogger('to_terminal')
 
 from asena import views
-from asena.models import token
+from asena.models import *
 from django.shortcuts import render
 
 class TestViews(unittest.TestCase):
 
     def setUp(self):
-        ts = token.TokenSet.objects.create()
-        self.test_token = token.Token.generate(token_set=ts,
+        ts = TokenSet.objects.create()
+        self.test_token =Token.generate(token_set=ts,
                                                length=10)
-        self.token_key = token.Token._REQUEST_KEY
+        self.token_key = Token._REQUEST_KEY
         setup_test_environment()
         self.client = Client()
         
