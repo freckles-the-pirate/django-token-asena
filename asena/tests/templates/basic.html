@@ -1,0 +1,18 @@
+<!doctype html>
+<!--
+    NOTICE: This document is to be used for testing purposes only.
+-->
+<html>
+    <head>
+        <title>!!! TESTING !!! {% if title %} {{ title }} {% endif %} !!! 
+            TESTING !!!</title>
+        <script type="text/javascript"> </script>
+        {% for s in scripts %}
+            <script type="text/javascript" src="{{ s }}"></script>
+        {% endfor %}
+    </head>
+    <body>
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>

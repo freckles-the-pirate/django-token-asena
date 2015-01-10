@@ -1,0 +1,20 @@
+<!doctype html>
+<!--
+    NOTICE: This document is to be used for testing purposes only.
+-->
+<html>
+    <head>
+        <title>!!! TESTING !!! {% if title %} {{ title }} {% endif %} !!! 
+            TESTING !!!</title>
+        <script type="text/javascript"> </script>
+        {% for s in scripts %}
+            <script type="text/javascript" src="{{ s }}"></script>
+        {% endfor %}
+    </head>
+    <body>
+        <form name="test-form" method="post">
+            {{ body }}
+            <input type="submit" value="Submit Form" />
+        </form>
+    </body>
+</html>
