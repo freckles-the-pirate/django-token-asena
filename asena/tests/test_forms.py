@@ -25,7 +25,8 @@ from asena.models import *
 
 class TestFormElements(unittest.TestCase):
     
-    HTML_OUT = './widget.html'
+    HTML_OUT = os.path.join(os.path.dirname(__file__),
+                            'widget.html')
     STATIC_DIR = os.path.join(os.path.dirname(__file__), '..', 'static')
     TEST_TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
                                 'templates')
@@ -66,11 +67,12 @@ class TestFormElements(unittest.TestCase):
         with open(outfile_path, 'w+') as f:
             f.write(rendered)
             f.close()
+        logger.info("Widget written to %s"%outfile_path)
         
     def test_token_set_form(self):
         form = TokenSetCreationForm()
         js = [
-            'file://' + os.path.abspath(os.path.join(self.STATIC_DIR, 
+            'file://' + os.path.abspath(os.path.join(settings.STATIC_ROOT, 
                 'tokenGeneration.js')),
             ]
         context = {'scripts' : js, 'body' : form.as_p(), }

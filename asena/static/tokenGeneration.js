@@ -4,6 +4,11 @@ console.log("Hello, world!");
 
 ASENA_TOKEN_GET_TOKEN_URL='/token/generate';
 
+/**
+ * NOTE: To be used for Django testing only!
+ **/
+TEST_ASENA_TOKEN_GET_TOKEN_URL='http://localhost:8000/token/generate';
+
 function ajaxRequest(){
     // Thanks to http://tinyurl.com/5mmjcj for the boilerplate code!
     var activexmodes=["Msxml2.XMLHTTP", "Microsoft.XMLHTTP"]    //  activeX 
@@ -56,19 +61,24 @@ function getParent(element, tag){
 }
 
 function getChild(element, name){
-//     nm = element.getAttribute("name");
-    console.log("Checking if %s == %s", element.getAttribute("name"),
-        name );
-    if (element.getAttribute("name") == name)
+    nm = element.getAttribute("name");
+    
+    if (element.nodeName == name){
+        console.log("getChild(): Found %s", element);
         return element;
-    for (var i = 0; i < element.children.length; ++i){
-        c = getChild(element.children[i], name);
+    }
+    
+    children = element.children;
+    
+    for (var i = 0; i < children.length; ++i){
+        var c = element.children[i];
+        console.log("getChild(): Checking child %s", c.nodeName);
         if (c != null){
-            console.log("Found child %s", c);
+            console.log("getChild(): Found %s", c.nodeName);
             return c;
         }
     }
-    console.warn("Child %s not found from %s", name, element);
+    console.warn("getChild(): Child not found!");
     return null;
 }
 
@@ -85,6 +95,14 @@ function fillSelectList(field, stringResult){
     }
 }
 
+function isSelectMultiple(element){
+    if (element != null)
+        return (element.getAttribute('name') == 'INPUT' &&
+            element.getAttribute('type') == 'SELECT' &&
+            element.getAttribute('multiple') != null);
+    return false;
+}
+
 function generateAsenaTokens(element_id){
     
     var button = document.getElementById(element_id);
@@ -93,7 +111,8 @@ function generateAsenaTokens(element_id){
     var selectField = getChild(parentForm, "SELECT");
     
     if (selectField == null){
-        console.error("selectField is null! Stopping...");
+        console.error("generateAsenaTokens(): selectField is null! " +
+                "Stopping...");
         return;
     }
     
@@ -104,11 +123,12 @@ function generateAsenaTokens(element_id){
         if (mygetrequest.readyState==4){
             if (mygetrequest.status==200 || 
                 window.location.href.indexOf("http")==-1){
-                    console.log("Got response: %s", mygetrequest.responseText);
+                    console.log("Got response:");
+                    console.log(mygetrequest.responseText);
                     fillSelectList(selectField, mygetrequest.responseText)
                 }
             else{
-                alert("An error has occured making the request");
+                console.error("An error has occured making the request");
             }
         }
     }
@@ -117,8 +137,11 @@ function generateAsenaTokens(element_id){
     // work. We need to find the elements by id instead of name since the ID 
     // may change from form to form.
     
-    var count = getChild(parentForm, "count").value;
-    var length = getChild(parentForm, "length").value;
+    var countElement = getChild(parentForm, "count");
+    var lengthElement = getChild(parentForm, "length");
+    
+    var count = countElement.value;
+    var length = lengthElement.value;
     
     if (count == null)
         count = '';
@@ -127,8 +150,12 @@ function generateAsenaTokens(element_id){
     
     console.log("Count is %d and length is %d", count, length);
     
+//     var baseUrl = ASENA_TOKEN_GET_TOKEN_URL;
+//     var baseUrl = TEST_ASENA_TOKEN_GET_TOKEN_URL;
+    var baseUrl = '';
+    
     // Open and send the request.
-    requestUrl = ASENA_TOKEN_GET_TOKEN_URL + "/" + count + "/" + length;
+    var requestUrl = baseUrl + "/" + count + "/" + length;
     console.log("Querying %s", requestUrl);
     mygetrequest.open("GET", requestUrl, true);
     mygetrequest.send(null);

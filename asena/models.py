@@ -45,7 +45,7 @@ class TokenSet(models.Model):
     generated = models.DateTimeField(auto_now=True)
     name = models.CharField(blank=True, null=True, max_length=200)
     disabled = models.BooleanField(default=False)
-    expiration = models.DateTimeField()
+    expiration = models.DateTimeField(blank=True, null=True)
     
     @classmethod
     def generate_set(Klass, count, length=10, name=None):
@@ -94,7 +94,7 @@ class Token(models.Model):
     token_set = models.ForeignKey("TokenSet", related_name="tokens",
                                   related_query_name="tokens")
     disabled = models.BooleanField(default=False)
-    expiration = models.DateTimeField(null=True, blank=True)
+    expiration = models.DateTimeField(blank=True, null=True)
     
     _REQUEST_KEY='asena-token'
     

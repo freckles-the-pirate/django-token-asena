@@ -27,7 +27,8 @@ class TestViews(unittest.TestCase):
         self.token_key = Token._REQUEST_KEY
         setup_test_environment()
         self.client = Client()
-        
+    
+    @skip("Removing option to generate a single token.")
     def test_token_ajax_request(self):
         """ Token text can be generated from a view.
         """

@@ -86,7 +86,19 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, '..', 'static')
+
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
+)
+
 ROOT_URLCONF = 'asena.urls'
+
+"""
+" WARNING: DANGROUS. Set to ``True'' for testing only!
+" See http://tinyurl.com/6yvja5n
+"""
+ALLOW_CORS_FOR_TESTING=True
 
 import django
 django.setup()

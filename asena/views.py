@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
 #from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST, require_GET
 
 import string, pprint
@@ -26,7 +26,11 @@ def token_ajax_generate(request, *args, **kwargs):
     length = int(kwargs.pop('length', 10))
     charset = string.ascii_letters + string.digits
     
-    return HttpResponse(random_chars(charset, length))
+    response = JsonResponse(random_chars(charset, length))
+    
+    if get_setting('ALLOW_CORS_FOR_TESTING', False):
+        response['Access-Control-Allow-Origin' : '*']
+    
 
 def token_set_ajax_generate(request, *args, **kwargs):
     
