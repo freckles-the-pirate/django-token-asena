@@ -3,6 +3,7 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from django import test as unittest
+from django.shortcuts import render
 from django.test.utils import setup_test_environment
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -16,7 +17,8 @@ logger = logging.getLogger('to_terminal')
 
 from asena import views
 from asena.models import *
-from django.shortcuts import render
+from asena.utils import *
+from asena.forms import *
 
 class TestViews(unittest.TestCase):
 

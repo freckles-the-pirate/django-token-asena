@@ -19,8 +19,8 @@ import logging, pprint, os
 logger = logging.getLogger('to_terminal')
 
 from asena import widgets
-from asena.forms import TokenCreationForm, TokenSetCreationForm
-from asena.utils import random_chars
+from asena.forms import *
+from asena.utils import *
 from asena.models import *
 
 class TestFormElements(unittest.TestCase):
@@ -77,3 +77,15 @@ class TestFormElements(unittest.TestCase):
             ]
         context = {'scripts' : js, 'body' : form.as_p(), }
         self._write_template(self.FORM_TEMPLATE, context, self.HTML_OUT)
+        
+    def test_token_wall(self):
+        """ The token wall is able to verify a token and authenticate the user.
+        Ensure the session token is valid.
+        """
+        token_set = TokenSet.objects.create()
+        token = Token.generate(10, token_set)
+        token_wall = TokenWall({'token' : token.value,})
+        if not token_wall.is_valid():
+            logger.error(pprint.pformat(token_wall.errors))
+        self.assertTrue(token_wall.is_valid())
+        self.assertIsNotNone(token_wall.get_token())

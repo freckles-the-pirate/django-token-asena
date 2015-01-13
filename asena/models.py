@@ -1,7 +1,11 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from asena.utils import random_chars
+from asena.utils import random_chars, get_default_setting
 import string, random
+from datetime import timedelta, datetime
+
+import logging, pprint
+logger = logging.getLogger('to_terminal')
 
 """
 " Token Exceptions
@@ -65,6 +69,9 @@ class TokenSet(models.Model):
             Token.generate(length=length, token_set=token_set, comment=name)
         return token_set
     
+    def has_expired(self):
+        return ( self.expiration ) and (datetime.now() > self.expiration)
+    
     def get_tokens(self):
         return Token.objects.filter(token_set__pk=self.pk)
             
@@ -100,8 +107,10 @@ class Token(models.Model):
                                   related_query_name="tokens")
     disabled = models.BooleanField(default=False)
     expiration = models.DateTimeField(blank=True, null=True)
+    session_timeout = models.CharField(blank=True, null=True, max_length=20,
+        help_text=_("Time Delta format (e.g. 'HH,MM,SS')"))
     
-    _REQUEST_KEY='asena-token'
+    _REQUEST_KEY='token'
     
     @classmethod
     def generate(Klass, length, token_set, comment=None,
@@ -133,9 +142,24 @@ class Token(models.Model):
         return (self.token_set.has_expired() or 
             self.token_set.disabled)
     
+    def has_expired(self):
+        return self.get_expiration() and (self.get_expiration() > 
+            datetime.now())
+    
+    def get_expiration(self):
+        """ Get either the token's expiration or (if the token set has an
+            expiration) the token set's expiration.
+            
+            :return: The token expiration.
+        """
+        if self.token_set.expiration:
+            return self.token_set.expiration
+        return self.expiration
+    
     @classmethod
     def exists(self, value):
-        return Token.objects.filter(value).exists()
+        logger.debug("Checking if token value '%s' exists..."%value)
+        return Token.objects.filter(value=value).exists()
     
     @classmethod
     def is_valid(self, value):
@@ -143,6 +167,19 @@ class Token(models.Model):
             t = Token.objects.get(value=value)
             return not t.is_disabled
         return False
+    
+    def get_session_expiry(self):
+        e = self.session_timeout
+        if not e:
+            e = self.token_set.session_timeout
+            
+        separators = get_default_setting('ASENA_TIMEOUT_SEPARATORS')
+        parts = e.split(separators, e)
+        for i in range(0, len(parts)):
+            parts[i] = int(parts[i])
+            
+        return timedelta(*parts)
+        
     
     @classmethod
     def request_is_valid(Klass, request):

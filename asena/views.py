@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 #from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST, require_GET
@@ -61,9 +62,9 @@ def token_wall(request, *args, **kwargs):
     context.update({'token_wall_form' : token_form})
     
     if request.method == 'GET' and 'token' in request.GET:
-        context.update({'token', request.GET['token']})
+        context.update({'token' : request.GET['token']})
     elif request.method == 'POST' and 'token' in request.POST:
-        context.update({'token', request.GET['token']})
+        context.update({'token' : request.POST['token']})
         
     return render(request, template, context)
 
@@ -88,30 +89,39 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
     logger.debug("In token_protect('%s')..."%redirect_url)
     
     def wrap(view_func, _redirect_url=redirect_url):
-        logger.debug("In wrap(%s)"%view_func)
+        
         def _wrapped_view_func(request, _redirect_url=_redirect_url, *args, 
             **kwargs):
-            logger.debug("In _wrapped_view_func()...")
-            logger.debug("request type: %s"%type(request))
-            logger.debug("args: %s"%pprint.pformat(args))
-            logger.debug("kwargs: %s"%pprint.pformat(kwargs))
+                
+            session_key = get_default_setting('ASENA_SESSION_NAME')
+            
+            # First check if the user has already entered a token and the token
+            # is accepted (hint: check the session). If this is the case, just
+            # return the view.
+            
+            if session_key in request.session:
+                if request.session.get_expiry_age() > 0:
+                    return view_func(request, *args, **kwargs)
             
             # Here we'll check to see if the token is valid. If an exception is
             # thrown, return a redirect.
-            try:
-                logger.debug("Testing if request is valid...")
-                result = Token.request_is_valid(request)
-            except TokenException as e1:
-                logger.error("%s"%type(e1))
-                if e1.token:
-                    return redirect(make_url(redirect_url,
-                                reason=e1.__class__.__name__,
-                                token=e1.token.value,
-                                next=request.get_full_path()))
-                else:
-                    return redirect(make_url(redirect_url,
-                            reason=e1.__class__.__name__,
-                            next=request.get_full_path()))
+            
+            logger.debug("Testing if request is valid...")
+            if request.method == 'POST':
+                token_wall = TokenWall(request.POST)
+            elif request.method == 'GET':
+                token_wall = TokenWall(request.GET)
+            else:
+                raise PermissionDenied('Expected either GET or POST.')
+            
+            token = token_wall.get_token()
+                
+            if token:
+                logger.debug("Token %s checks out!"%token)
+                expiry = token.get_session_expiry()
+                request.session[session_key] = t
+                if expiry:
+                    request.session[session_key].set_expiry(expiry)
             
             # If everything checks out, return the view function.
             return view_func(request, *args, **kwargs)

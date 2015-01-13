@@ -16,13 +16,44 @@ class TokenWall(forms.Form):
     
     def clean(self):
         cleaned_data = super(TokenWall, self).clean()
-        token_text = cleaned_data['token']
-        ve = forms.ValidationError(
-            _("The token %s isn't valid."),
-            code='invalid')
-        if (Token.is_disabled(token_text) or 
-            Token.is_valid(token_text) ):
-                raise ve
+        token_value = cleaned_data['token']
+        
+        # Validate the data.
+        asena_security = get_default_setting('ASENA_SECURITY_CONFIG')
+        asena_errors = get_default_setting('ASENA_ERROR_MESSAGES')
+        
+        code = None
+        
+        t = Token.objects.get(value=token_value)
+            
+        if ((not t) or t.has_expired() or t.is_disabled()):
+            code = 'general'
+        
+        if (not t) and asena_security['show_invalid_error']:
+            code = 'invalid'
+        
+        elif t.has_expired() and asena_security['show_timeout_error']:
+            code = 'expired'
+                
+        elif t.is_disabled() and asena_security['show_disabled_error']:
+            code='disabled'
+        
+        if code:
+            raise forms.ValidationError(asena_errors[code], code)
+        
+        logger.debug("Cleaned data: %s"%pprint.pformat(cleaned_data))
+        return cleaned_data
+    
+    def get_token(self):
+        """ If the form is valid, return the token from the token value.
+        """
+        self.clean()
+        if self.is_valid():
+            tt = self.cleaned_data['token']
+            logger.debug("Looking for token '%s'"%tt)
+            return Token.objects.get(value=tt)
+        
+        return None
         
     
 class TokenCreationForm(forms.ModelForm):
