@@ -1,8 +1,15 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 from asena.models import Token, TokenSet
 from asena.widgets import TokenWidget
 from asena.fields import TokenField, TokenSetField
+
+from asena.utils import (random_chars, random_chars_set, get_setting, 
+    get_default_setting)
+
+import logging, pprint
+logger = logging.getLogger('to_terminal')
 
 class TokenWall(forms.Form):
     token = forms.CharField(label="Token Text")
@@ -31,11 +38,48 @@ class TokenCreationForm(forms.ModelForm):
         fields = ['value', 'comment']
 
 class TokenSetCreationForm(forms.ModelForm):
-    count = forms.IntegerField(label="Number of tokens")
-    length = forms.IntegerField(label="Length of each token")
-    comment = forms.CharField(label="Comment")
-    token_set = TokenSetField()
+    count = forms.IntegerField(label="Number of tokens", required=False,
+        help_text="Leave blank to update a token set.")
+    length = forms.IntegerField(label="Length of each token", required=False,
+        help_text="Leave blank to udpate a token set.")
+    
+    def __init__(self, *args, **kwargs):
+        super(TokenSetCreationForm, self).__init__(*args, **kwargs)
+        #self.instance = kwargs.pop('instance', None)
+        
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(TokenSetCreationForm, self).clean(*args, **kwargs)
+        self.cleaned_data = cleaned_data
+        return cleaned_data
+    
+    def save(self, force_insert=False, force_update=False, commit=True):
+        t = super(TokenSetCreationForm, self).save(commit=False)
+        
+        count = self.cleaned_data.pop('count', 0) or 0
+        length = self.cleaned_data.pop('length', 0) or 0
+        
+        values = []
+        
+        if self.instance:
+            ts = self.instance.get_tokens()
+            count = count - len(ts)
+            if count < 1: count = 0
+            token_set = super(TokenSetCreationForm, self).save(commit=True)
+            
+        else:
+            token_set = TokenSet.objects.create(**self.cleaned_data)
+        
+        if count > 0 and length > 0:
+            values = random_chars_set(get_default_setting('ASENA_CHAR_SET'), 
+                length, count)
+            logger.debug("Generate tokens: %s"%pprint.pformat(values))
+            
+        for v in values:
+            Token.objects.create(value=v, token_set=token_set)
+        
+        return token_set
     
     class Meta:
         model = TokenSet
-        fields = ['name', 'comment', 'expiration']
+        fields = ['name', 'disabled', 'session_timeout', 'expiration',
+                  'count', 'length', ]

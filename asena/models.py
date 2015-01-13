@@ -3,7 +3,6 @@ from django.utils.translation import ugettext_lazy as _
 from asena.utils import random_chars
 import string, random
 
-
 """
 " Token Exceptions
 """
@@ -46,6 +45,8 @@ class TokenSet(models.Model):
     name = models.CharField(blank=True, null=True, max_length=200)
     disabled = models.BooleanField(default=False)
     expiration = models.DateTimeField(blank=True, null=True)
+    session_timeout = models.CharField(blank=True, null=True, max_length=20,
+        help_text=_("Time Delta format (e.g. 'HH,MM,SS')"))
     
     @classmethod
     def generate_set(Klass, count, length=10, name=None):
@@ -63,11 +64,15 @@ class TokenSet(models.Model):
         for i in range(0, count):
             Token.generate(length=length, token_set=token_set, comment=name)
         return token_set
+    
+    def get_tokens(self):
+        return Token.objects.filter(token_set__pk=self.pk)
             
     def __unicode__(self):
         if self.name:
-            return name
-        return "Generated %d"%self.generated
+            return self.name
+        ts = self.get_tokens()
+        return "%d tokens generated %s"%(len(ts), self.generated)
 
     class Meta:
         abstract = False

@@ -29,6 +29,25 @@ class TestToken(unittest.TestCase):
         t1 = Token.objects.get(pk=t.pk)
         self.assertEqual(len(t1.value), 10)
         
+    def test_tokenset_delete(self):
+        """ TokenSets and their respective tokens can be deleted.
+        """
+        ts = TokenSet.objects.create(name="Test Token Set")
+        tokens = [
+            Token.generate(10, token_set=ts, comment="First Token").pk,
+            Token.generate(10, token_set=ts, comment="First Token").pk,
+        ]
+        
+        test_pk = ts.pk
+        self.assertEqual(TokenSet.objects.filter(pk=test_pk).count(), 1)
+        for t in tokens:
+            self.assertEqual(Token.objects.filter(pk=t).count(), 1)
+        TokenSet.objects.filter(pk=test_pk).delete()
+        
+        self.assertEqual(TokenSet.objects.filter(pk=test_pk).count(), 0)
+        for t in tokens:
+            self.assertEqual(Token.objects.filter(pk=t).count(), 0)
+        
     def _test_token_set(self):
         """ A token set can generate many tokens.
         """

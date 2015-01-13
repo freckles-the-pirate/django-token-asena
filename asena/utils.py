@@ -2,6 +2,8 @@ import random
 
 from django.conf import settings
 
+from asena import settings_default
+
 import logging
 logger = logging.getLogger('test_logger')
 import pprint
@@ -25,6 +27,12 @@ def random_chars(char_set, length):
         s = s + char_set[n]
     return s
 
+def random_chars_set(char_set, length, count):
+    out_set = []
+    for i in range(0, count):
+        out_set.append(random_chars(char_set, length))
+    return out_set
+
 def html_attrs(attrs):
     """ Convert the attrs in dict format to an HTML format.
     
@@ -43,6 +51,15 @@ def get_setting(setting, alt_value):
     if hasattr(settings, setting):
         return settings.setting
     return alt_value
+
+def get_default_setting(setting):
+    default_setting_key='%s_DEFAULT'%setting
+    if hasattr(settings, setting):
+        return settings.setting
+    elif hasattr(settings_default, default_setting_key):
+        return getattr(settings_default, default_setting_key)
+    else:
+        raise AttributeError("Missing default value ''%s``"%default_setting_key)
 
 def make_url(base, **kwargs):
     sep = '?'
