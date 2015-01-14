@@ -65,6 +65,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
     }
 }
+    
+FIXTURE_DIRS = (
+    os.path.join(BASE_DIR, "fixtures",),
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

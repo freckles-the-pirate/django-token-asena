@@ -16,7 +16,10 @@ class TokenWall(forms.Form):
     
     def clean(self):
         cleaned_data = super(TokenWall, self).clean()
-        token_value = cleaned_data['token']
+        
+        token_value = None
+        if 'token' in cleaned_data:
+            token_value = cleaned_data['token']
         
         # Validate the data.
         asena_security = get_default_setting('ASENA_SECURITY_CONFIG')
@@ -24,7 +27,9 @@ class TokenWall(forms.Form):
         
         code = None
         
-        t = Token.objects.get(value=token_value)
+        t = None
+        if token_value:
+            t = Token.objects.get(value=token_value)
             
         if ((not t) or t.has_expired() or t.is_disabled()):
             code = 'general'
@@ -47,13 +52,11 @@ class TokenWall(forms.Form):
     def get_token(self):
         """ If the form is valid, return the token from the token value.
         """
-        self.clean()
-        if self.is_valid():
-            tt = self.cleaned_data['token']
-            logger.debug("Looking for token '%s'"%tt)
-            return Token.objects.get(value=tt)
-        
-        return None
+        if not self.is_valid(): return None
+    
+        tt = self.cleaned_data['token']
+        logger.debug("Looking for token '%s'"%tt)
+        return Token.objects.get(value=tt)
         
     
 class TokenCreationForm(forms.ModelForm):
