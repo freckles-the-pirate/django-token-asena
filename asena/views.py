@@ -14,7 +14,7 @@ from asena.utils import *
 
 from django.conf import settings
 
-logger = logging.getLogger('test_logger')
+logger = logging.getLogger('to_terminal')
 
 @require_GET
 def token_ajax_generate(request, *args, **kwargs):
@@ -94,34 +94,45 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
             **kwargs):
                 
             session_key = get_default_setting('ASENA_SESSION_NAME')
+            url_key = get_default_setting('ASENA_URL_KEY')
             
             # First check if the user has already entered a token and the token
             # is accepted (hint: check the session). If this is the case, just
             # return the view.
-            
+
             if session_key in request.session:
+                logger.debug("%s is in request.session."%session_key)
                 if request.session.get_expiry_age() > 0:
                     return view_func(request, *args, **kwargs)
             
             # Here we'll check to see if the token is valid. If an exception is
             # thrown, return a redirect.
-            
-            logger.debug("Testing if request is valid...")
+
+            logger.debug("Token wall request method was %s"%request.method)
             if request.method == 'POST':
-                token_wall = TokenWall(request.POST)
+                logger.debug("POST data: %s"%pprint.pformat(request.POST.dict()))
+                token_wall_form = TokenWall(data=request.POST.dict())
             elif request.method == 'GET':
-                token_wall = TokenWall(request.GET)
+                logger.debug("GET data: %s"%pprint.pformat(request.GET.dict()))
+                token_wall_form = TokenWall(data=request.GET.dict())
             else:
+                logger.error("Something happened!")
                 raise PermissionDenied('Expected either GET or POST.')
             
-            token = token_wall.get_token()
+            token = token_wall_form.get_token()
                 
             if token:
                 logger.debug("Token %s checks out!"%token)
                 expiry = token.get_session_expiry()
-                request.session[session_key] = t
+                request.session[session_key] = token.value
                 if expiry:
-                    request.session[session_key].set_expiry(expiry)
+                    request.session.set_expiry(expiry)
+            else:
+                logger.warn("Could not verify token. Returning " +
+                        "token_wall view.")
+                kwargs.update({'next' : _redirect_url})
+                return token_wall(request, *args, **kwargs)
+
             
             # If everything checks out, return the view function.
             return view_func(request, *args, **kwargs)

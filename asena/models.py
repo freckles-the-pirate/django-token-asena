@@ -169,18 +169,25 @@ class Token(models.Model):
         return False
     
     def get_session_expiry(self):
+        """
+        " Get the number of seconds in which the session will expire. Note
+        " that this must be an int value (or we could json-serialize it).
+        "
+        " :return: number of seconds in which the session will expire.
+        " :type return: int
+        """
+        import re
         e = self.session_timeout
         if not e:
             e = self.token_set.session_timeout
             
         separators = get_default_setting('ASENA_TIMEOUT_SEPARATORS')
-        parts = e.split(separators, e)
+        parts = re.split(separators, e)
         for i in range(0, len(parts)):
             parts[i] = int(parts[i])
             
-        return timedelta(*parts)
-        
-    
+        return timedelta(*parts).total_seconds()
+
     @classmethod
     def request_is_valid(Klass, request):
         """ Given a request, check that the payload contains a token and that

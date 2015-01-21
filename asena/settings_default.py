@@ -28,7 +28,12 @@ ASENA_ERROR_MESSAGES_DEFAULT = {
 """
 " The name for the session cookie.
 """
-ASENA_SESSION_NAME_DEFAULT='asena_token'
+ASENA_SESSION_NAME_DEFAULT='asena_token_value'
+
+"""
+" The name of the GET or POST key.
+"""
+ASENA_URL_KEY_DEFAULT='token'
 
 """
 " A regexp for how to split a "session timeout." For example, if the

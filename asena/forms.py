@@ -13,9 +13,11 @@ logger = logging.getLogger('to_terminal')
 
 class TokenWall(forms.Form):
     token = forms.CharField(label="Token Text")
-    
+   
     def clean(self):
         cleaned_data = super(TokenWall, self).clean()
+
+        logger.debug("Cleaning data: %s"%pprint.pformat(cleaned_data))
         
         token_value = None
         if 'token' in cleaned_data:
@@ -47,12 +49,13 @@ class TokenWall(forms.Form):
             raise forms.ValidationError(asena_errors[code], code)
         
         logger.debug("Cleaned data: %s"%pprint.pformat(cleaned_data))
-        return cleaned_data
-    
+
     def get_token(self):
         """ If the form is valid, return the token from the token value.
         """
-        if not self.is_valid(): return None
+        if not self.is_valid():
+            logger.warn("TokenWall form data is not valid.")
+            return None
     
         tt = self.cleaned_data['token']
         logger.debug("Looking for token '%s'"%tt)
