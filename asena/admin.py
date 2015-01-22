@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import *
-from .forms import *
+from asena.models import *
+from asena.forms import *
 
 import logging
 logger = logging.getLogger('to_terminal')

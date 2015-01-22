@@ -35,20 +35,24 @@ class TokenSetField(forms.MultiValueField):
         return ''
 
 class TimeDeltaField(forms.MultiValueField):
-    widget = TimeDeltaWidget
-
-    def __init__(self, *args, **kwargs):
-
-        super(TimeDeltaField, self).__init__( fields = (
-            forms.IntegerField(label="Hours"),
-            forms.IntegerField(label="Minutes"),
-            forms.IntegerField(label="Seconds"),
-        ), **kwargs)
+        
+    fields = (
+        forms.IntegerField(label="Hours", min_value=0, max_value=100),
+        forms.IntegerField(label="Minutes", min_value=0, max_value=60),
+    )
+    
+    widget=TimeDeltaWidget
+    
+    def clean(self, value):
+        #v = super(TimeDeltaField, self).clean(value)
+        #logger.debug("Cleaning %s -> %s"%(value, v))
+        return self.compress(value)
 
     def compress(self, data_list):
         """ Compress the TimeDeltaField. If any fields are left blank,
         fill them in with a zero.
         """
-        data = [0]*(3-len(data_list)) + [str(d) for d in data_list]
-        logging.debug("Compressing %s -> %s."%(data, data_list))
+        dl = data_list + [0,]*(2 - len(data_list or []))
+        data = ','.join([str(d or '0') for d in dl])
+        logger.debug("Compressing %s -> %s."%(data_list, data))
         return data

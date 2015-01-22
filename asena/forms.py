@@ -81,10 +81,13 @@ class TokenSetCreationForm(forms.ModelForm):
         help_text="Leave blank to udpate a token set.")
     session_timeout = TimeDeltaField(required=False,
             label="For how long will the session be valid?",
-            help_text=str("Note that the session will automatically end " +
-                "when the browser clears its data."))
+            help_text="Note that the session will automatically end " +
+                "when the browser data is cleared.")
     
     def __init__(self, *args, **kwargs):
+        logger.debug("Token Set:")
+        logger.debug("args\t%s"%(pprint.pformat(args)))
+        logger.debug("kwargs\t%s"%(pprint.pformat(kwargs)))
         super(TokenSetCreationForm, self).__init__(*args, **kwargs)
         #self.instance = kwargs.pop('instance', None)
         
@@ -100,6 +103,9 @@ class TokenSetCreationForm(forms.ModelForm):
         length = self.cleaned_data.pop('length', 0) or 0
         
         values = []
+        
+        logger.debug("Timeout: %s"%self.cleaned_data.get('session_timeout',
+            None))
         
         if self.instance:
             ts = self.instance.get_tokens()

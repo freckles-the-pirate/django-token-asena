@@ -3,6 +3,7 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from django import test as unittest
+from django.test import Client
 from django.contrib.auth.models import User, UserManager
 
 from unittest import skip
@@ -63,3 +64,24 @@ class TestToken(unittest.TestCase):
         for t in ts.tokens.all():
             self.assertNotIn(t.value, values)
             values.append(t.value)
+    
+    """
+    " Session testing
+    """
+    
+    def test_get_session_timeout(self):
+        """ A token can set a session timeout time based on the token's
+        or the token set's timeout.
+        """
+        ts = TokenSet.objects.create(name="Test Token Set",
+                                     session_timeout='0,4')
+        token = Token.generate(10, token_set=ts)
+        
+        expected = datetime.now() + timedelta(hours=0, minutes=4)
+        result = token.get_session_expiration(datetime.now())
+        
+        # We don't care about microseconds (tests will fail if we do!)
+        expected = tuple(expected.timetuple())[:5]
+        result = tuple(result.timetuple())[:5]
+        
+        self.assertEqual(expected, result)

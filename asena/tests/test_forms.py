@@ -22,6 +22,7 @@ from asena import widgets
 from asena.forms import *
 from asena.utils import *
 from asena.models import *
+from asena.fields import *
 
 class TestFormElements(unittest.TestCase):
     
@@ -37,6 +38,27 @@ class TestFormElements(unittest.TestCase):
     
     def setUp(self):
         self.token_widget = widgets.TokenWidget()
+        
+    def test_timedelta_compression(self):
+        """ Compression  and decompression works for arbitrary lists, even if 
+            None values are used.
+        """
+        tdf = TimeDeltaField()
+        tdw = TimeDeltaWidget()
+        test_times = (
+            ([1, 2], "1,2", [1, 2], ),
+            ([ 5 ], "5,0", [5, 0], ),
+            ([5, ], "5,0", [5, 0], ),
+            ([None, 5], "0,5", [0, 5], ),
+            ([5, None], "5,0", [5, 0], ),
+            # We don't test where len > 3 because Django already takes care
+            # of that.
+        )
+        for t in test_times:
+            compressed = tdf.compress(t[0])
+            decompressed = tdw.decompress(t[1])
+            self.assertEqual(compressed, t[1])
+            self.assertEqual(decompressed, t[2])
     
     @skip("Useless because we need to generate a set.")
     def testTokenWidget(self):
@@ -89,3 +111,18 @@ class TestFormElements(unittest.TestCase):
             logger.error(pprint.pformat(token_wall.errors))
         self.assertTrue(token_wall.is_valid())
         self.assertIsNotNone(token_wall.get_token())
+        
+    def test_time_delta_widget(self):
+        """
+        " A TimeDeltaWidget can be created.
+        """
+        tdw = TimeDeltaWidget()
+        rendered = tdw.render('test_time_delta_widget', '0,10')
+        self.assertIsNotNone(rendered)
+        logger.debug("Rendered TimeDeltaWidget: %s"%rendered)
+        
+    def test_time_delta_field(self):
+        """
+        " A TimeDeltaField can be created.
+        """
+        tdf = TimeDeltaField()

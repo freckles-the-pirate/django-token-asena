@@ -76,10 +76,10 @@ class TokenSet(models.Model):
         return Token.objects.filter(token_set__pk=self.pk)
             
     def __unicode__(self):
+        ts = self.get_tokens().count()
         if self.name:
-            return self.name
-        ts = self.get_tokens()
-        return "%d tokens generated %s"%(len(ts), self.generated)
+            return "%s (%d tokens)"%(self.name, ts)
+        return "%d tokens generated %s"%(ts, self.generated)
 
     class Meta:
         abstract = False
@@ -157,15 +157,42 @@ class Token(models.Model):
         session_name_key = get_default_setting('ASENA_SESSION_NAME')
         session_time_key = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
         datetime_format = get_default_setting('ASENA_DATETIME_FORMAT')
+        
+        session_time_value = datetime.strftime(datetime_format)
+        
         return {
             session_name_key : self.pk,
-            session_time_key : self.get_token_expiration(),
+            session_time_key : self.get_session_expiration(),
         }
     
+    def get_session_timeout(self, as_timedelta=False):
+        """ Get the current session timeout. If it's null (or "0,0"), then
+        return the TokenSet's session timeout.
+        
+        :param as_timedelta: True if we should conver to timedelta.
+        :type as_timedelta: bool
+        
+        :return: The session timeout value.
+        """
+        val = self.token_set.session_timeout
+        if (self.session_timeout) or (self.session_timeout != '0,0'):
+            val = self.token_set.session_timeout
+        if as_timedelta and val:
+            (hours, minutes) = val.split(',')
+            return timedelta(hours=int(hours), minutes=int(minutes))
+        return val
+    
     def get_session_expiration(self, init=datetime.now()):
+        """ Get the timeout for the token. This will be calculated from the
+        initial time ``init``
+        
+        :param init: The initial datetime. Default is datetime.datetime.now()
+        :type init: datetime.
         """
-        " Get the timeout for the token.
-        """
+        timeout = self.get_session_timeout()
+        if timeout:
+            return init + self.get_session_timeout(True)
+        return None
         
     
     def get_expiration(self):
@@ -227,7 +254,7 @@ class Token(models.Model):
     def __unicode__(self):
         if self.comment:
             return "%s - %s"%(self.comment, self.value)
-        return self.value
+        return "%s - %s's token set"%(self.value, self.token_set.name)
 
     class Meta:
         abstract = False
