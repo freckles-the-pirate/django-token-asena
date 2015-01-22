@@ -31,6 +31,17 @@ ASENA_ERROR_MESSAGES_DEFAULT = {
 ASENA_SESSION_NAME_DEFAULT='asena_token_value'
 
 """
+" The name of the session timeout cookie.
+"""
+ASENA_SESSION_TIMEOUT_NAME_DEFAULT='asena_token_timeout'
+
+"""
+" The date format for converting to and from a date.
+" :see: datetime.datetime.strptime
+"""
+ASENA_DATETIME_FORMAT_DEFAULT="%c"
+
+"""
 " The name of the GET or POST key.
 """
 ASENA_URL_KEY_DEFAULT='token'

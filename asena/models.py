@@ -108,7 +108,8 @@ class Token(models.Model):
     disabled = models.BooleanField(default=False)
     expiration = models.DateTimeField(blank=True, null=True)
     session_timeout = models.CharField(blank=True, null=True, max_length=20,
-        help_text=_("Time Delta format (e.g. 'HH,MM,SS')"))
+        help_text=_("Note that the token will expire when session" +
+            " cookies are cleared."))
     
     _REQUEST_KEY='token'
     
@@ -145,6 +146,27 @@ class Token(models.Model):
     def has_expired(self):
         return self.get_expiration() and (self.get_expiration() > 
             datetime.now())
+            
+    """
+    " Methods for the session
+    """
+    
+    def get_session(self):
+        """ Get the dict values required for a session variable.
+        """
+        session_name_key = get_default_setting('ASENA_SESSION_NAME')
+        session_time_key = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
+        datetime_format = get_default_setting('ASENA_DATETIME_FORMAT')
+        return {
+            session_name_key : self.pk,
+            session_time_key : self.get_token_expiration(),
+        }
+    
+    def get_session_expiration(self, init=datetime.now()):
+        """
+        " Get the timeout for the token.
+        """
+        
     
     def get_expiration(self):
         """ Get either the token's expiration or (if the token set has an
@@ -167,26 +189,11 @@ class Token(models.Model):
             t = Token.objects.get(value=value)
             return not t.is_disabled
         return False
-    
-    def get_session_expiry(self):
+
+    def has_session_expired(self, expiration_time):
         """
-        " Get the number of seconds in which the session will expire. Note
-        " that this must be an int value (or we could json-serialize it).
-        "
-        " :return: number of seconds in which the session will expire.
-        " :type return: int
+        " True if the session has expired.
         """
-        import re
-        e = self.session_timeout
-        if not e:
-            e = self.token_set.session_timeout
-            
-        separators = get_default_setting('ASENA_TIMEOUT_SEPARATORS')
-        parts = re.split(separators, e)
-        for i in range(0, len(parts)):
-            parts[i] = int(parts[i])
-            
-        return timedelta(*parts).total_seconds()
 
     @classmethod
     def request_is_valid(Klass, request):

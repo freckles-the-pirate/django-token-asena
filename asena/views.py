@@ -95,6 +95,7 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
                 
             session_key = get_default_setting('ASENA_SESSION_NAME')
             url_key = get_default_setting('ASENA_URL_KEY')
+            session_time_key = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
             
             # First check if the user has already entered a token and the token
             # is accepted (hint: check the session). If this is the case, just
@@ -102,7 +103,9 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
 
             if session_key in request.session:
                 logger.debug("%s is in request.session."%session_key)
-                if request.session.get_expiry_age() > 0:
+                tok = Token.objects.get(value=request.session[session_key])
+                tok_time = request.session[session_time_key]
+                if tok.has_session_expired(tok_time):
                     return view_func(request, *args, **kwargs)
             
             # Here we'll check to see if the token is valid. If an exception is
@@ -110,23 +113,22 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
 
             logger.debug("Token wall request method was %s"%request.method)
             if request.method == 'POST':
-                logger.debug("POST data: %s"%pprint.pformat(request.POST.dict()))
+                #logger.debug("POST data: %s"%pprint.pformat(request.POST.dict()))
                 token_wall_form = TokenWall(data=request.POST.dict())
             elif request.method == 'GET':
-                logger.debug("GET data: %s"%pprint.pformat(request.GET.dict()))
+                #logger.debug("GET data: %s"%pprint.pformat(request.GET.dict()))
                 token_wall_form = TokenWall(data=request.GET.dict())
             else:
-                logger.error("Something happened!")
+                #logger.error("Something happened!")
                 raise PermissionDenied('Expected either GET or POST.')
             
             token = token_wall_form.get_token()
                 
             if token:
                 logger.debug("Token %s checks out!"%token)
-                expiry = token.get_session_expiry()
                 request.session[session_key] = token.value
-                if expiry:
-                    request.session.set_expiry(expiry)
+                if token.get_session_expiry():
+                    request.session[session_time_key] = token.get_session_time_expiration()
             else:
                 logger.warn("Could not verify token. Returning " +
                         "token_wall view.")

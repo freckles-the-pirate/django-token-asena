@@ -1,5 +1,5 @@
 from django import forms
-from asena.widgets import TokenWidget, TokenSetWidget
+from asena.widgets import *
 
 from django.conf import settings
 import logging, pprint, os
@@ -28,7 +28,27 @@ class TokenSetField(forms.MultiValueField):
         )
         super(TokenSetField, self).__init__(fields, *args, **kwargs)
         
-        def compress(self, data_list):
-            logger.debug("Compressing data list %s"%pprint.pformat(data_list))
-            if len(data_list) > 0:
-                return data_list.join(',')
+    def compress(self, data_list):
+        logger.debug("Compressing data list %s"%pprint.pformat(data_list))
+        if len(data_list) > 0:
+            return data_list.join(',')
+        return ''
+
+class TimeDeltaField(forms.MultiValueField):
+    widget = TimeDeltaWidget
+
+    def __init__(self, *args, **kwargs):
+
+        super(TimeDeltaField, self).__init__( fields = (
+            forms.IntegerField(label="Hours"),
+            forms.IntegerField(label="Minutes"),
+            forms.IntegerField(label="Seconds"),
+        ), **kwargs)
+
+    def compress(self, data_list):
+        """ Compress the TimeDeltaField. If any fields are left blank,
+        fill them in with a zero.
+        """
+        data = [0]*(3-len(data_list)) + [str(d) for d in data_list]
+        logging.debug("Compressing %s -> %s."%(data, data_list))
+        return data

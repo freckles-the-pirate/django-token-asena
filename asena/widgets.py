@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.text import mark_safe
+from django.utils.translation import ugettext_lazy as _
 from django.templatetags.static import static
 from django.conf import settings
 
@@ -102,3 +103,15 @@ class TokenSetWidget(forms.MultiWidget):
             return [None,]
         logger.debug("Decompressing value \"%s\""%value)
         return [value,]
+
+class TimeDeltaWidget(forms.MultiWidget):
+    widgets = (
+        forms.NumberInput(),
+        forms.NumberInput(),
+        forms.NumberInput(),
+    )
+
+    def decompress(self, value):
+        if not value:
+            return [None]*3
+        return ','.split(value)

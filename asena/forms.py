@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from asena.models import Token, TokenSet
 from asena.widgets import TokenWidget
-from asena.fields import TokenField, TokenSetField
+from asena.fields import TokenField, TokenSetField, TimeDeltaField
 
 from asena.utils import (random_chars, random_chars_set, get_setting, 
     get_default_setting)
@@ -79,6 +79,10 @@ class TokenSetCreationForm(forms.ModelForm):
         help_text="Leave blank to update a token set.")
     length = forms.IntegerField(label="Length of each token", required=False,
         help_text="Leave blank to udpate a token set.")
+    session_timeout = TimeDeltaField(required=False,
+            label="For how long will the session be valid?",
+            help_text=str("Note that the session will automatically end " +
+                "when the browser clears its data."))
     
     def __init__(self, *args, **kwargs):
         super(TokenSetCreationForm, self).__init__(*args, **kwargs)
