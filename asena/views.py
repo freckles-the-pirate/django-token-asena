@@ -96,18 +96,17 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
             session_key = get_default_setting('ASENA_SESSION_NAME')
             url_key = get_default_setting('ASENA_URL_KEY')
             session_time_key = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
-            
-            # First check if the user has already entered a token and the token
-            # is accepted (hint: check the session). If this is the case, just
-            # return the view.
+           
+            if has_session_expired(request.session):
+                for k in (session_key, session_time_key):
+                    if k in request.session:
+                        del request.session[k]
+            else:
+                remain = get_session_time_remaining(request.session)
+                remain = remain.total_seconds()
+                logger.info("Session time remaining: %d seconds."%remain)
+                return view_func(request, *args, **kwargs)
 
-            if session_key in request.session:
-                logger.debug("%s is in request.session."%session_key)
-                tok = Token.objects.get(value=request.session[session_key])
-                tok_time = request.session[session_time_key]
-                if tok.has_session_expired(tok_time):
-                    return view_func(request, *args, **kwargs)
-            
             # Here we'll check to see if the token is valid. If an exception is
             # thrown, return a redirect.
 
@@ -126,9 +125,7 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
                 
             if token:
                 logger.debug("Token %s checks out!"%token)
-                request.session[session_key] = token.value
-                if token.get_session_expiry():
-                    request.session[session_time_key] = token.get_session_time_expiration()
+                request.session.update(token.get_session())
             else:
                 logger.warn("Could not verify token. Returning " +
                         "token_wall view.")

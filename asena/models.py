@@ -157,12 +157,12 @@ class Token(models.Model):
         session_name_key = get_default_setting('ASENA_SESSION_NAME')
         session_time_key = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
         datetime_format = get_default_setting('ASENA_DATETIME_FORMAT')
-        
-        session_time_value = datetime.strftime(datetime_format)
+
+        exp = self.get_session_expiration().strftime(datetime_format)
         
         return {
-            session_name_key : self.pk,
-            session_time_key : self.get_session_expiration(),
+            session_name_key : self.value,
+            session_time_key : exp,
         }
     
     def get_session_timeout(self, as_timedelta=False):

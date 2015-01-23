@@ -1,11 +1,12 @@
 import random
+from datetime import datetime, timedelta
 
 from django.conf import settings
 
 from asena import settings_default
 
 import logging
-logger = logging.getLogger('test_logger')
+logger = logging.getLogger('to_terminal')
 import pprint
 
 def random_chars(char_set, length):
@@ -69,3 +70,55 @@ def make_url(base, **kwargs):
         if sep == '?':
             sep = '&'
     return base
+
+def get_session_time_remaining(session_data, _date=datetime.now()):
+    """ Calculate the amount of time remaining for the session as a
+    datetime.timedelta object. 
+
+    :param session_data: The client's session.
+    :type session_data: backends.base.SessionBase
+
+    :param _date: The initial date to test. Default is datetime.datetime.now()
+                  Mainly used for testing.
+    :default _date: datetime.datetime.now()
+    :type _date: datetime.datetime
+
+    :return: The amount of time remaining as a timedelta object.
+
+    """
+    timeout_name = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
+    session_name = get_default_setting('ASENA_SESSION_NAME')
+    dt_format = get_default_setting('ASENA_DATETIME_FORMAT')
+
+    # Assume that if the session data does not exist, it has expired.
+    if not session_data:
+        return None
+
+    exp_date = session_data.get(timeout_name, None)
+
+    if not exp_date:
+        return None
+
+    exp_date = datetime.strptime(exp_date, dt_format)
+
+    logger.debug("It is now %s. The session wil end at %s"%(
+        _date, exp_date))
+
+    diff = exp_date - _date
+
+    # We can think of timedelta() as the int value ``0``. This tests if there
+    # is a negative difference in time.
+    if diff <= timedelta():
+        return timedelta()
+
+    # Otherwise, just return the difference.
+    return diff
+
+def has_session_expired(session_data, _date=datetime.now()):
+    """ True if the token session has expired.
+       :return: True if the session has expired, False otherwise.
+    """
+    remain = get_session_time_remaining(session_data, _date)
+    if remain:
+        return not (remain > timedelta())
+    return True

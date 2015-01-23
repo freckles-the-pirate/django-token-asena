@@ -13,6 +13,7 @@ import logging, pprint, os
 logger = logging.getLogger('test_logger')
 
 from asena.models import *
+from asena.utils import *
 
 class TestToken(unittest.TestCase):
 
@@ -76,12 +77,97 @@ class TestToken(unittest.TestCase):
         ts = TokenSet.objects.create(name="Test Token Set",
                                      session_timeout='0,4')
         token = Token.generate(10, token_set=ts)
+
+        init = datetime.now()
         
-        expected = datetime.now() + timedelta(hours=0, minutes=4)
-        result = token.get_session_expiration(datetime.now())
-        
-        # We don't care about microseconds (tests will fail if we do!)
-        expected = tuple(expected.timetuple())[:5]
-        result = tuple(result.timetuple())[:5]
-        
+        expected = init + timedelta(hours=0, minutes=4)
+        result = token.get_session_expiration(init)
+               
         self.assertEqual(expected, result)
+
+    def test_get_session_dict(self):
+        """ The session dict is returned giving correct values.
+        """
+        ts = TokenSet.objects.create(name="Test Token Set",
+                                     session_timeout='0,4')
+        token = Token.generate(10, token_set=ts)
+
+        init=datetime.now()
+
+        timeout_name = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
+        session_name = get_default_setting('ASENA_SESSION_NAME')
+        dt_format = get_default_setting('ASENA_DATETIME_FORMAT')
+
+        expected_dt = (init + timedelta(hours=0, minutes=4)).strftime(
+                dt_format)
+        
+        expected = {
+                timeout_name : expected_dt,
+                session_name : token.value,
+            }
+
+        result = token.get_session()
+
+        self.assertEqual(expected, result)
+
+    def test_session_has_timed_out(self):
+        """ The token returns True if the session has expired based on
+        the session data.
+        """
+
+        timeout_name = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
+        session_name = get_default_setting('ASENA_SESSION_NAME')
+        dt_format = get_default_setting('ASENA_DATETIME_FORMAT')
+
+        mock_now = datetime.now() - timedelta(hours=1)
+        mock_expiration = datetime.now()
+        mock_after = datetime.now() + timedelta(hours=1)
+
+        """ Providing mock data will avoid having to set up a client.
+        """
+        mock_session_data = {
+            session_name : 'random_value',
+            timeout_name : mock_expiration.strftime(dt_format),
+        }
+
+        self.assertFalse(has_session_expired(mock_session_data, mock_now))
+        self.assertTrue(has_session_expired(mock_session_data, mock_after))
+        self.assertTrue(has_session_expired({}, mock_after))
+        self.assertTrue(has_session_expired(None, mock_after))
+
+    def test_get_time_remaining(self):
+        """ The correct time remaining is calculated.
+        """
+ 
+        timeout_name = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
+        session_name = get_default_setting('ASENA_SESSION_NAME')
+        dt_format = get_default_setting('ASENA_DATETIME_FORMAT')
+
+        now = datetime.now()
+
+        mock_now = now - timedelta(minutes=1)
+        mock_expiration = now
+        mock_after = now + timedelta(minutes=1)
+
+        expected_now = timedelta(minutes=1).total_seconds()
+        expected_expiration = timedelta().total_seconds()
+        expected_later = timedelta().total_seconds()
+
+        """ Providing mock data will avoid having to set up a client.
+        """
+        mock_session_data = {
+            session_name : 'random_value',
+            timeout_name : mock_expiration.strftime(dt_format),
+        }
+
+        tests = (
+            (mock_now, expected_now),
+            (mock_expiration, expected_expiration),
+            (mock_after, expected_later),
+            (None, expected_later),
+        )
+
+        for t in tests:
+            result = get_session_time_remaining(mock_session_data, t[0])
+            self.assertEqual(int(result.total_seconds()), t[1])
+
