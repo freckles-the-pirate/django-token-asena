@@ -9,3 +9,6 @@
 migrations
 *~
 *.egg-info
+MANIFEST
+*.swp
+dist
