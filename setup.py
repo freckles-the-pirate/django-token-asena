@@ -16,7 +16,7 @@ with open('README.rst') as file:
 
 setup(
     # Required information
-    name='Token Asena',
+    name='django-token-asena',
     version='0.2',         # major.minor[.patch[.sub]]
     url='https://www.gitorious.org/token-asena',
     
