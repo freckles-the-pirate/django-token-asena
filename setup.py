@@ -16,9 +16,9 @@ with open('README.rst') as file:
 
 setup(
     # Required information
-    name='django-resume-griffin',
-    version='1.0b',         # major.minor[.patch[.sub]]
-    url='https://www.gitorious.org/django-resume-griffin',
+    name='Token Asena',
+    version='0.2',         # major.minor[.patch[.sub]]
+    url='https://www.gitorious.org/token-asena',
     
     # Switch out
     author='Jordan Hewitt',          # or user maintainer
@@ -35,5 +35,6 @@ setup(
     license='GPLv3',
     
     #data_files = ['./docs',],
-    packages = ['griffin', ],
+    packages = ['asena',
+        ],
 )
