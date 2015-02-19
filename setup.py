@@ -31,8 +31,13 @@ setup(
     ' from unauthorized access.',
     long_description=long_description,
     download_url='',
-    classifiers=['Topic :: Internet :: WWW/HTTP :: WSGI :: Application', ''],
-    platforms=['', ''],
+    classifiers=[
+        'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
     license='GPLv3',
     
     #data_files = ['./docs',],
