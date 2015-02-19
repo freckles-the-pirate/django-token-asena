@@ -17,7 +17,7 @@ with open('README.rst') as file:
 setup(
     # Required information
     name='Token Asena',
-    version='0.1',         # major.minor[.patch[.sub]]
+    version='0.2',         # major.minor[.patch[.sub]]
     url='https://www.gitorious.org/token-asena',
     
     # Switch out
@@ -37,6 +37,5 @@ setup(
     
     #data_files = ['./docs',],
     packages = ['asena',
-                'asena.models',
         ],
 )
