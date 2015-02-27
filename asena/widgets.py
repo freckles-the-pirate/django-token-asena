@@ -71,7 +71,7 @@ class TokenWidget(forms.MultiWidget):
         
         :type attrs:    dict
         """
-        logger.debug("Token attributes: %s"%pprint.pformat(attrs))
+        #logger.debug("Token attributes: %s"%pprint.pformat(attrs))
         token_value = attrs.pop('token_value', None)
         text_attrs = {'disabled' : '1',}
         if token_value:
