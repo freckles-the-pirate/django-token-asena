@@ -1,0 +1,25 @@
+<!doctype html>
+<!--
+    NOTICE: This document is to be used for testing purposes only.
+-->
+<html>
+    <head>
+        <title>!!! TESTING !!!  !!! 
+            TESTING !!!</title>
+        <script type="text/javascript"> </script>
+        
+            <script type="text/javascript" src="file:///home/jordan/Projects/django/apps/token_asena/asena/static/tokenGeneration.js"></script>
+        
+    </head>
+    <body>
+        <form name="test-form" method="post">
+            <p><label for="id_name">Name:</label> <input id="id_name" maxlength="200" name="name" type="text" /></p>
+<p><label for="id_disabled">Disabled:</label> <input id="id_disabled" name="disabled" type="checkbox" /></p>
+<p><label for="id_session_timeout_0">For how long will the session be valid?</label> <span style="display:inline-block;"><input id="id_session_timeout_0" label="Hours" max="100" min="0" name="session_timeout_0" style="width: 75px; float: left;" type="number" /><label style="padding: 5px 5px; margin: 0px 0px; display: inline-block; width: auto;" for="session_timeout_0">Hours</label></span><span style="display:inline-block;"><input id="id_session_timeout_1" label="Minutes" max="60" min="0" name="session_timeout_1" style="width: 75px; float: left;" type="number" /><label style="padding: 5px 5px; margin: 0px 0px; display: inline-block; width: auto;" for="session_timeout_1">Minutes</label></span> <span class="helptext">Note that the session will automatically end when the browser data is cleared.</span></p>
+<p><label for="id_expiration">Expiration:</label> <input id="id_expiration" name="expiration" type="text" /></p>
+<p><label for="id_count">Number of tokens:</label> <input id="id_count" name="count" type="number" /> <span class="helptext">Leave blank to update a token set.</span></p>
+<p><label for="id_length">Length of each token:</label> <input id="id_length" name="length" type="number" /> <span class="helptext">Leave blank to udpate a token set.</span></p>
+            <input type="submit" value="Submit Form" />
+        </form>
+    </body>
+</html>

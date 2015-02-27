@@ -16,9 +16,9 @@ with open('README.rst') as file:
 
 setup(
     # Required information
-    name='django-resume-griffin',
+    name='django-token-asena',
     version='1.0b',         # major.minor[.patch[.sub]]
-    url='https://www.gitorious.org/django-resume-griffin',
+    url='https://www.gitorious.org/django-token-asena',
     
     # Switch out
     author='Jordan Hewitt',          # or user maintainer
@@ -27,7 +27,8 @@ setup(
     maintainer_email='',
     
     # optional
-    description = "Manage your employment history.",
+    description = "Generate tokens and token sets for temporary session " +
+        "authentication",
     long_description=long_description,
     download_url='',
     classifiers=['Topic :: Internet :: WWW/HTTP :: WSGI :: Application', ],
@@ -35,5 +36,5 @@ setup(
     license='GPLv3',
     
     #data_files = ['./docs',],
-    packages = ['griffin', ],
+    packages = ['asena', ],
 )

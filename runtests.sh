@@ -7,7 +7,7 @@ if [ -z $PYENV ]; then
     exit
 fi
 
-source $PYENV
+source '$PYENV'
 
 BASE_TESTING_PATH=$1
 BASE_TESTING_MODULE=$(echo $BASE_TESTING_PATH | sed 's/\.\///g' | sed 's/\//\./g')
