@@ -18,3 +18,5 @@ logger = logging.getLogger('to_terminal')
     #views,
     #widgets,
 #)
+
+from logger_setup import LOGGING

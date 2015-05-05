@@ -90,8 +90,9 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
     
     def wrap(view_func, _redirect_url=redirect_url):
         
-        def _wrapped_view_func(request, _redirect_url=_redirect_url, *args, 
-            **kwargs):
+        def _wrapped_view_func(request, *args, **kwargs):
+            
+            _redirect_url=kwargs.pop('_redirect_url', TOKEN_WALL_URL)
                 
             session_key = get_default_setting('ASENA_SESSION_NAME')
             url_key = get_default_setting('ASENA_URL_KEY')
