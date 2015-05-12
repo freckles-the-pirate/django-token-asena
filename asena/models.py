@@ -5,7 +5,7 @@ import string, random
 from datetime import timedelta, datetime
 
 import logging, pprint
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger(__name__)
 
 """
 " Token Exceptions
@@ -158,7 +158,11 @@ class Token(models.Model):
         session_time_key = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
         datetime_format = get_default_setting('ASENA_DATETIME_FORMAT')
 
-        exp = self.get_session_expiration().strftime(datetime_format)
+        sess_exp = self.get_session_expiration()
+        if sess_exp:
+            exp = self.get_session_expiration().strftime(datetime_format)
+        else:
+            exp = None
         
         return {
             session_name_key : self.value,

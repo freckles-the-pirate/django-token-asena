@@ -35,7 +35,7 @@ LOGGING = {
             },
         },
     'loggers' : {
-        'token_asena': {
+        __file__: {
             'level':'DEBUG',
             'handlers':['console'],
             'propogate' : True,
