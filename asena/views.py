@@ -27,10 +27,12 @@ def token_ajax_generate(request, *args, **kwargs):
     length = int(kwargs.pop('length', 10))
     charset = string.ascii_letters + string.digits
     
-    response = JsonResponse(random_chars(charset, length))
+    response = JsonResponse(random_chars(charset, length), safe=False)
     
     if get_setting('ALLOW_CORS_FOR_TESTING', False):
-        response['Access-Control-Allow-Origin' : '*']
+        response['Access-Control-Allow-Origin'] = '*'
+        
+    return response
     
 
 def token_set_ajax_generate(request, *args, **kwargs):

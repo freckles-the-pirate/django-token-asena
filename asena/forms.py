@@ -64,7 +64,7 @@ class TokenWall(forms.Form):
     
 class TokenCreationForm(forms.ModelForm):
     value = TokenField()
-    comment = forms.CharField(widget=forms.Textarea)
+    comment = forms.CharField(widget=forms.Textarea, required=False)
     
     def clean(self):
         cleaned_data = super(TokenCreationForm, self).clean()

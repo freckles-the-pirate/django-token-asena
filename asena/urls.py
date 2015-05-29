@@ -8,6 +8,6 @@ urlpatterns = patterns('',
     url(r'^token/generate/(?P<count>\d+)/(?P<length>\d+)/$',
         asena.views.token_set_ajax_generate,
         name="generate_token_set"),
-    #url(r'^token/generate/(?P<length>\d+)/$', asena.views.token_ajax_generate, 
-        #name="generate_token"),
+    url(r'^token/generate/(?P<length>\d+)/$', asena.views.token_ajax_generate, 
+        name="generate_token"),
 )

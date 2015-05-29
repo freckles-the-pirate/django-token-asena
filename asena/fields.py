@@ -6,7 +6,7 @@ import logging, pprint, os
 logger = logging.getLogger('to_terminal')
 
 class TokenField(forms.MultiValueField):
-    #widget = TokenWidget
+    widget = TokenWidget
     
     def __init__(self, *args, **kwargs):
         token_value = kwargs.pop('token_value', None)
