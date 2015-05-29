@@ -16,7 +16,7 @@ from datetime import date
 import string
 
 import logging, pprint, os
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 from asena import widgets
 from asena.forms import *

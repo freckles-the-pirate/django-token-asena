@@ -1,5 +1,5 @@
 import logging, pprint
-logger = logging.getLogger('to_terminal')
+#logger = logging.getLogger('to_terminal')
 
 #import sys, os
 #from django.db import models

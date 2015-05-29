@@ -9,7 +9,7 @@ from asena.utils import (random_chars, random_chars_set, get_setting,
     get_default_setting)
 
 import logging, pprint
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 class TokenWall(forms.Form):
     token = forms.CharField(label="Token Text")

@@ -6,7 +6,7 @@ from django.conf import settings
 from asena import settings_default
 
 import logging
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 import pprint
 
 def random_chars(char_set, length):

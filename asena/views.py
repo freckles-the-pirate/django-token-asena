@@ -1,9 +1,12 @@
+from functools import wraps
+
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 #from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseNotAllowed
 from django.views.decorators.http import require_POST, require_GET
+from django.utils.decorators import decorator_from_middleware, available_attrs
 
 import string, pprint
 
@@ -14,7 +17,7 @@ from asena.utils import *
 
 from django.conf import settings
 
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 @require_GET
 def token_ajax_generate(request, *args, **kwargs):
@@ -88,41 +91,44 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
         ``redirect`` if the token is invalid.
     """
     
-    logger.debug("In token_protect('%s')..."%redirect_url)
+    #logger.debug("In token_protect(%s)..."%(redirect_url))
     
-    def wrap(view_func, _redirect_url=redirect_url):
-        
-        def _wrapped_view_func(request, *args, **kwargs):
+    def decorator(func):
+        #logger.debug("In decorator(func=%s)"%(func))
+
+        @wraps(func, assigned=available_attrs(func))
+        def inner(request, *args, **kwargs):
             
-            _redirect_url=kwargs.pop('_redirect_url', TOKEN_WALL_URL)
+            #logger.debug("In inner(request=%s, args=%s, kwargs=%s)"%(
+                #request, args, kwargs))
                 
             session_key = get_default_setting('ASENA_SESSION_NAME')
             url_key = get_default_setting('ASENA_URL_KEY')
             session_time_key = get_default_setting('ASENA_SESSION_TIMEOUT_NAME')
            
             if has_session_expired(request.session):
+                logger.debug("Session has expired.")
                 for k in (session_key, session_time_key):
                     if k in request.session:
                         del request.session[k]
             else:
-                remain = get_session_time_remaining(request.session)
-                remain = remain.total_seconds()
+                remain = get_session_time_remaining(request.session).total_seconds()
                 logger.info("Session time remaining: %d seconds."%remain)
-                return view_func(request, *args, **kwargs)
+                return func(request, *args, **kwargs)
 
             # Here we'll check to see if the token is valid. If an exception is
             # thrown, return a redirect.
 
             logger.debug("Token wall request method was %s"%request.method)
             if request.method == 'POST':
-                #logger.debug("POST data: %s"%pprint.pformat(request.POST.dict()))
+                logger.debug("POST data: %s"%pprint.pformat(request.POST.dict()))
                 token_wall_form = TokenWall(data=request.POST.dict())
             elif request.method == 'GET':
-                #logger.debug("GET data: %s"%pprint.pformat(request.GET.dict()))
+                logger.debug("GET data: %s"%pprint.pformat(request.GET.dict()))
                 token_wall_form = TokenWall(data=request.GET.dict())
             else:
-                #logger.error("Something happened!")
-                raise PermissionDenied('Expected either GET or POST.')
+                logger.error("Something Unexpected happened!")
+                return HttpResponseNotAllowed(['GET', 'POST'])
             
             token = token_wall_form.get_token()
                 
@@ -132,11 +138,10 @@ def token_protect(redirect_url=TOKEN_WALL_URL):
             else:
                 logger.warn("Could not verify token. Returning " +
                         "token_wall view.")
-                kwargs.update({'next' : _redirect_url})
+                kwargs.update({'next' : redirect_url})
                 return token_wall(request, *args, **kwargs)
-
             
             # If everything checks out, return the view function.
-            return view_func(request, *args, **kwargs)
-        return _wrapped_view_func
-    return wrap
+            return func(request, *args, **kwargs)
+        return inner
+    return decorator

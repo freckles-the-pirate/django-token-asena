@@ -3,7 +3,7 @@ from asena.models import *
 from asena.forms import *
 
 import logging
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 class TokenAdmin(admin.ModelAdmin):
     form = TokenCreationForm
