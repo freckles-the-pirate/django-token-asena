@@ -17,8 +17,8 @@ with open('README.rst') as file:
 setup(
     # Required information
     name='django-token-asena',
-    version='1.0b',         # major.minor[.patch[.sub]]
-    url='https://www.gitorious.org/django-token-asena',
+    version='0.2',         # major.minor[.patch[.sub]]
+    url='https://www.gitorious.org/token-asena',
     
     # Switch out
     author='Jordan Hewitt',          # or user maintainer
@@ -27,14 +27,20 @@ setup(
     maintainer_email='',
     
     # optional
-    description = "Generate tokens and token sets for temporary session " +
-        "authentication",
+    description='Generate anonymous-use tokens and protect views' +
+        ' from unauthorized access.',
     long_description=long_description,
     download_url='',
-    classifiers=['Topic :: Internet :: WWW/HTTP :: WSGI :: Application', ],
-    platforms=['', ''],
+    classifiers=[
+        'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
     license='GPLv3',
     
     #data_files = ['./docs',],
-    packages = ['asena', ],
+    packages = ['asena',
+        ],
 )

@@ -3,10 +3,10 @@ from asena.widgets import *
 
 from django.conf import settings
 import logging, pprint, os
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 class TokenField(forms.MultiValueField):
-    #widget = TokenWidget
+    widget = TokenWidget
     
     def __init__(self, *args, **kwargs):
         token_value = kwargs.pop('token_value', None)

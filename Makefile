@@ -1,10 +1,17 @@
 BASE_DIR=asena
 
 PIP=`which pip`
+PYTHON=`which python`
+FORMATS=gztar,zip
 
 .PHONY: install
 install:
 	$(PIP) install . -U
+
+.PHONY: release
+release:
+	$(PYTHON) setup.py sdist --formats=$(FORMATS) && \
+		twine upload dist/*
 
 .PHONY: test
 test:

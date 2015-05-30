@@ -9,15 +9,15 @@ from django.conf import settings
 from asena.utils import html_attrs
 
 import logging, pprint, os
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 """ Constant to pass in to the "onClick" HTML attribute for a button
 """
-ONCLICK_BUTTON_METHOD="generateAsenaTokens('%(id)s'); return false;"
+ONCLICK_BUTTON_METHOD="generateAsenaTokenSet('%(id)s'); return false;"
 
 """ In case the static URL changes, make it a constant, too
 """
-STATIC_JS='tokenGeneration.js'
+STATIC_JS='asena/tokenGeneration.js'
 
 class Button(forms.Widget):
     def __init__(self, attrs):
@@ -49,6 +49,8 @@ class Button(forms.Widget):
         # It's ugly, but first we need to prepend some javascript.
         js = static(STATIC_JS)
         
+        logger.debug(js)
+        
         s = """<script type="text/javascript"></script>
 <script type="text/javascript" src="%s"></script>"""%js
         
@@ -71,14 +73,16 @@ class TokenWidget(forms.MultiWidget):
         
         :type attrs:    dict
         """
-        logger.debug("Token attributes: %s"%pprint.pformat(attrs))
+        #logger.debug("Token attributes: %s"%pprint.pformat(attrs))
         token_value = attrs.pop('token_value', None)
-        text_attrs = {'disabled' : '1',}
+        #text_attrs = {'disabled' : '0',}
+        text_attrs = {}
         if token_value:
             text_attrs.update({'value' : token_value,})
         widgets = [forms.TextInput(text_attrs),
                    SizeWidget(),
-                   Button(attrs={'onClick' : ONCLICK_BUTTON_METHOD,}),
+                   Button(attrs={'onClick' : "generateAsenaToken('%(id)s'); return false;",
+                                 'label' : "Generate", }),
                ]
         super(TokenWidget, self).__init__(widgets, attrs)
     

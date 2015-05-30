@@ -1,13 +1,8 @@
 // Default values
 
-console.log("Hello, world!");
+window.console.log("Hello, world!");
 
 ASENA_TOKEN_GET_TOKEN_URL='/token/generate';
-
-/**
- * NOTE: To be used for Django testing only!
- **/
-TEST_ASENA_TOKEN_GET_TOKEN_URL='http://localhost:8000/token/generate';
 
 function ajaxRequest(){
     // Thanks to http://tinyurl.com/5mmjcj for the boilerplate code!
@@ -60,6 +55,43 @@ function getParent(element, tag){
     return getParent(parent, tag);
 }
 
+/**
+ * Find a child of an element. by regular expression.
+ * @name getChildByAttrRegex
+ * @param element The root HTML DOM element from which we'll search.
+ * @param tag The tag name. (e.g. INPUT)
+ * @param attr The attribute for the element (e.g. id)
+ * @param regex Regular expression for the given attribute.
+ * @return The first child whose attribute matches ``regex``, or ``null`` if not found.
+ **/
+function getChildByAttrRegex(element, tag, attr, regex){
+    
+    var tagName = element.tagName;
+    var attrVal = element.getAttribute(attr);
+    
+    console.log("getChildByAttrRegex(): %s#%s", tagName, attrVal);
+    
+    if (attrVal != null){
+        if (attrVal.search(regex) != -1){
+            console.log("getChildByAttrRegex(): Found %s. RETURNING", attrVal);
+            return element;
+        }
+    }
+    
+    var childFound = null;
+    for (var i = 0; i < element.childElementCount; ++i){
+        var c = element.children[i];
+        if (c != null)
+            childFound = getChildByAttrRegex(c, tag, attr, regex);
+        if (childFound != null)
+            return childFound;
+    }
+    
+    //                 console.warn("getChildByAttrRegex(): Child not found!");
+    
+    return null;
+}
+
 function getChild(element, name){
     nm = element.getAttribute("name");
     
@@ -82,6 +114,8 @@ function getChild(element, name){
     return null;
 }
 
+
+
 function fillSelectList(field, stringResult){
     var results = stringResult.split(',');
     console.log("Filling with %d results", results.length);
@@ -103,7 +137,42 @@ function isSelectMultiple(element){
     return false;
 }
 
-function generateAsenaTokens(element_id){
+function generateAsenaToken(element_id){
+    var button = document.getElementById(element_id);
+    var parentDiv = getParent(button, "DIV");
+    var lengthField = getChildByAttrRegex(parentDiv, "input", "type", "number");
+    var inputField = getChildByAttrRegex(parentDiv, "input", "type", "text");
+    
+    mygetrequest = new ajaxRequest();
+    
+    mygetrequest.onreadystatechange=function(){
+        if (mygetrequest.readyState==4){
+            if (mygetrequest.status==200 || 
+                window.location.href.indexOf("http")==-1){
+                var value = mygetrequest.responseText;
+                console.log("Got response: %s", value);
+                if (value.startsWith('"'))
+                    value = value.substring(1);
+                if (value.endsWith('"'))
+                    value = value.substring(0, value.length-2);
+                inputField.value = value;
+                inputField.setAttribute("value", value);
+            }
+            else{
+                console.error("An error has occured making the request");
+            }
+        }
+    }
+    
+    var baseUrl = ASENA_TOKEN_GET_TOKEN_URL;
+    var length = lengthField.valueAsNumber;
+    var requestUrl = baseUrl + '/' + length;
+    console.log("Querying %s", requestUrl);
+    mygetrequest.open("GET", requestUrl, true);
+    mygetrequest.send(null);
+}
+
+function generateAsenaTokenSet(element_id){
     
     var button = document.getElementById(element_id);
     var parentForm = getParent(button, "FORM");

@@ -8,17 +8,19 @@ from django.test.utils import setup_test_environment
 from django.test import Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.http import HttpResponse
 
 from unittest import skip
 from datetime import date
 
 import logging, pprint, os
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 from asena import views
 from asena.models import *
 from asena.utils import *
 from asena.forms import *
+
 
 class TestViews(unittest.TestCase):
 
@@ -29,6 +31,7 @@ class TestViews(unittest.TestCase):
         self.token_key = Token._REQUEST_KEY
         setup_test_environment()
         self.client = Client()
+        
     
     @skip("Removing option to generate a single token.")
     def test_token_ajax_request(self):
@@ -58,9 +61,21 @@ class TestViews(unittest.TestCase):
         client = Client()
         response = client.get(reverse('token_wall'),
                               token_text=self.test_token.value)
-        logger.debug(response)
+        self.assertEqual(response.status_code, 200)
         
-    def test_prompt2(self):
-        """ A token is given and is valid.
+    def test_good_view(self):
+        """ The ``@token_protect`` wrapper function allows valid tokens.
         """
-        pass
+        good_url = reverse('my_view', kwargs={'x' : 5, 'y' : 3}) + "?token=%s"%(self.test_token.value)
+        response = self.client.get(good_url)
+        logger.info("(Good) Response: %s", response.content)
+        self.assertEqual(response.content, "5 + 3 is 8")
+        
+    def test_bad_view(self):
+        """ The ``@token_protect`` wrapper function redirects to the token \
+        wall on invalid tokens.
+        """
+        response = self.client.get(reverse('my_view',
+                                           kwargs={'x' : 5, 'y' : 3}))
+        logger.info("(Bad) Response: %s", response.content)
+        self.assertEqual(response.status_code, 200)

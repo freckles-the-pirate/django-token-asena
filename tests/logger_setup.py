@@ -18,11 +18,11 @@ class ColorHandler(ColorizingStreamHandler):
 
 CONFIG = {
     'version':1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'handlers':{
         'console': {
             '()':ColorHandler,
-            'info':'white',
+            #'info':'white',
             'level': 'DEBUG',
             'formatter': 'detailed',
             'stream': 'ext://sys.stdout',
@@ -35,10 +35,10 @@ CONFIG = {
             },
         },
     'loggers' : {
-        'to_terminal': {
+        'asena': {
             'level':'DEBUG',
             'handlers':['console'],
-            'propogate' : True,
+            'propagate' : True,
             },
         },
     }

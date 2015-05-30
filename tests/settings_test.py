@@ -18,7 +18,7 @@ sys.path.insert(0, BASE_DIR)
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # Import logging
-from asena.tests.logger_setup import CONFIG as ASENA_LOG_CONFIG
+from .logger_setup import CONFIG as ASENA_LOG_CONFIG
 
 LOGGING=ASENA_LOG_CONFIG
 

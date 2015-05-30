@@ -9,7 +9,7 @@ from asena.utils import (random_chars, random_chars_set, get_setting,
     get_default_setting)
 
 import logging, pprint
-logger = logging.getLogger('to_terminal')
+logger = logging.getLogger('asena')
 
 class TokenWall(forms.Form):
     token = forms.CharField(label="Token Text")
@@ -64,7 +64,7 @@ class TokenWall(forms.Form):
     
 class TokenCreationForm(forms.ModelForm):
     value = TokenField()
-    comment = forms.CharField(widget=forms.Textarea)
+    comment = forms.CharField(widget=forms.Textarea, required=False)
     
     def clean(self):
         cleaned_data = super(TokenCreationForm, self).clean()
