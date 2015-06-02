@@ -3,7 +3,7 @@ TESTDIR=$(pwd)/tests
 RUNTESTS=$(pwd)/runtests.py
 PYTHON=$(which python)
 TESTCASE=$1
-export DJANGO_MODE="test"
+export TEST_ASENA=1
 
 if [ ! -d "$TESTDIR" ]; then
     echo "`TESTDIR` path "'"$TESTDIR"'" does not exist."

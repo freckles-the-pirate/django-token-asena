@@ -13,7 +13,7 @@ urlpatterns = patterns('',
         name="generate_token"),
 )
     
-if os.environ.get('DJANGO_MODE', None) == 'test':
+if int(os.environ.get('TEST_ASENA', 0)) == 1:
     sys.path.append(
         os.path.abspath(
             os.path.join(
